@@ -1,0 +1,304 @@
+/* Раздел «Грустят» (React SPA) */
+
+/* Ровно 4 карточки метрик на всю ширину (без пустых колонок 5–6 как у глобальной .metrics-grid) */
+@container layoutContent (min-width: 1120px) {
+  .sad-intern-list-page .sad-intern-metrics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.sad-intern-list-page .sad-intern-groups-section {
+  margin-top: 1.5rem;
+}
+
+.sad-intern-direction-section {
+  margin-bottom: 2rem;
+}
+
+.sad-intern-direction-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: var(--text-secondary, #555);
+}
+
+/* Нет горизонтального скролла из-за translateX при hover (см. tables.css) */
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* «Вышли на проект»: без рамки карточки; без цветных линий в шапке */
+.sad-intern-list-page .sad-intern-on-project-section .interviews-subsection-card {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.sad-intern-list-page .sad-intern-on-project-section .interviews-subsection-head {
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0;
+}
+
+.sad-intern-list-page .sad-intern-on-project-section .interviews-collapsible-block__inner {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Одна общая линия под строкой заголовков (не по каждой ячейке отдельно) */
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table thead {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* С .sort-header-btn (center + min-height 2.25rem) — без «ступеньки» у несортируемых колонок */
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table thead th {
+  vertical-align: middle;
+  border-bottom: none;
+}
+
+.sad-intern-list-page
+  .table-scroll.table-scroll--plain
+  .data-table.sad-intern-table
+  thead
+  th.sad-intern-th-plain
+  .sad-intern-th-plain__inner {
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* Кнопки «Действия» — 36px как у основных кнопок */
+.sad-intern-list-page .table-scroll .data-table.sad-intern-table td.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.sad-intern-list-page .table-scroll .data-table.sad-intern-table td.action-buttons a.btn-outline-primary.btn-small,
+.sad-intern-list-page .table-scroll .data-table.sad-intern-table td.action-buttons button.btn-outline-danger.btn-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 0.875rem;
+  line-height: 1;
+  padding: 0 0.5rem;
+  min-height: 36px;
+  height: 36px;
+  min-width: 36px;
+  max-height: none;
+  gap: 0;
+}
+
+/* Десктоп / мобилка: таблица vs карточки */
+.sad-intern-list-page .sad-intern-table-desktop {
+  display: none;
+}
+
+.sad-intern-list-page .sad-intern-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .sad-intern-list-page .sad-intern-table-desktop {
+    display: block;
+  }
+
+  .sad-intern-list-page .sad-intern-mobile-cards {
+    display: none;
+  }
+}
+
+.sad-intern-mobile-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .sad-intern-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.sad-intern-mobile-card--positive {
+  border-color: color-mix(in srgb, #89c978 45%, var(--border-color));
+}
+
+.sad-intern-mobile-card--negative {
+  border-color: color-mix(in srgb, #e98074 45%, var(--border-color));
+}
+
+.sad-intern-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sad-intern-mobile-card__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sad-intern-mobile-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.sad-intern-mobile-card__id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sad-intern-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.sad-intern-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.sad-intern-mobile-card__dl dt {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.sad-intern-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.sad-intern-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.sad-intern-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+.sad-intern-list-page .load-more-directions {
+  margin-top: 2rem;
+  text-align: center;
+  padding: 1.5rem 0;
+  border-top: 2px solid var(--border-color, #e0e0e0);
+}
+
+.sad-intern-list-page .load-more-directions .btn-primary[aria-disabled="true"] {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Таблица: ширины колонок */
+.sad-intern-table th:nth-child(1) {
+  width: 2%;
+}
+.sad-intern-table th:nth-child(2) {
+  width: 20%;
+}
+.sad-intern-table th:nth-child(3) {
+  width: 10%;
+}
+.sad-intern-table th:nth-child(4) {
+  width: 10%;
+}
+.sad-intern-table th:nth-child(5) {
+  width: 10%;
+}
+.sad-intern-table th:nth-child(6) {
+  width: 15%;
+}
+.sad-intern-table th:nth-child(7) {
+  width: 10%;
+}
+.sad-intern-table th:nth-child(8) {
+  width: 18%;
+}
+.sad-intern-table th:nth-child(9) {
+  width: 5%;
+}
+
+.sad-intern-list-page .table-scroll .data-table.sad-intern-table.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 3.25rem;
+  --data-table-sticky-col2-left: 3.25rem;
+}
+
+/* Тусклая подсветка строк по статусу (основной список и «Вышли на проект» с class status-positive) */
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr.status-positive > td {
+  background-color: rgba(137, 201, 120, 0.42);
+  color: var(--text-primary);
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.sad-intern-table tbody tr.status-positive > td:nth-child(1),
+.sad-intern-list-page .table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.sad-intern-table tbody tr.status-positive > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(137, 201, 120, 0.45), rgba(137, 201, 120, 0.45));
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.sad-intern-table tbody tr.status-positive:hover > td:nth-child(1),
+.sad-intern-list-page .table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.sad-intern-table tbody tr.status-positive:hover > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(137, 201, 120, 0.58), rgba(137, 201, 120, 0.58));
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr.status-positive:hover > td {
+  background-color: rgba(137, 201, 120, 0.55);
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr.status-negative > td {
+  background-color: rgba(233, 128, 116, 0.42);
+  color: var(--text-primary);
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr.status-negative:hover > td {
+  background-color: rgba(233, 128, 116, 0.55);
+}
+
+.sad-intern-list-page .table-scroll.table-scroll--plain .data-table.sad-intern-table tbody tr:not(.status-positive):not(.status-negative) > td {
+  border-bottom-color: color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.sad-intern-form-page .form-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+}
+
+.sad-intern-form-page .interview-form .form-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sad-intern-form-page .interview-form .react-select__control {
+  min-height: 40px !important;
+}

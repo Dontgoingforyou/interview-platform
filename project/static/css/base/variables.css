@@ -1,0 +1,321 @@
+:root {
+  /* Тёмная тема по умолчанию */
+  --bg-primary: #0d1117; /* Основной фон */
+  --bg-secondary: #161b22; /* Фоны карточек */
+  --bg-tertiary: #21262d; /* Фоны заголовков */
+  --border-color: #30363d; /* Цвет границ */
+  --text-primary: #e6edf3; /* Основной текст */
+  --text-secondary: #848d97; /* Вторичный текст */
+  --text-muted: #6e7681; /* Третичный текст */
+
+  /* Акцентные цвета */
+  --accent-blue: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-yellow: #d29922;
+  --accent-red: #f85149;
+  --danger: #ff6b6b;
+
+  /* Алиасы для удобства */
+  --accent-primary: var(--accent-blue);
+  --accent-success: var(--accent-green);
+  --text-on-accent: #ffffff;
+
+  /* Фокус, ссылки, декор */
+  --focus-ring: var(--accent-blue);
+  --link-color: var(--accent-blue);
+  --link-hover: #79b8ff;
+  --decor-accent: var(--accent-blue);
+  --scrollbar-thumb-hover: var(--accent-blue);
+  --btn-hover-bg: #21262d;
+  --btn-primary-bg: var(--accent-green);
+  --input-focus-border: var(--accent-blue);
+  --input-focus-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+  --table-row-hover-bg: rgba(88, 166, 255, 0.08);
+
+  /* Тени и скругления */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 16px 32px rgba(1, 4, 9, 0.24);
+  --radius-card: 12px;
+  --radius-btn: 8px;
+
+  /* Карточки метрик */
+  --metric-card-bg: linear-gradient(135deg, rgba(88, 166, 255, 0.16), rgba(88, 166, 255, 0.08));
+  --metric-card-shadow: inset 0 0 0 1px rgba(88, 166, 255, 0.12);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(63, 185, 80, 0.16), rgba(63, 185, 80, 0.08));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(63, 185, 80, 0.12);
+
+  /* Анимации: длительность и сглаживание */
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Светлая тема */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #f3f4f6;
+  --border-color: #d0d7de;
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
+  --text-muted: #656d76;
+
+  --accent-blue: #0969da;
+  --accent-green: #2da44e;
+  --accent-yellow: #bc8c00;
+  --accent-red: #cf222e;
+  --danger: #ff6b6b;
+
+  --accent-primary: var(--accent-blue);
+  --accent-success: var(--accent-green);
+  --text-on-accent: #ffffff;
+
+  --focus-ring: var(--accent-blue);
+  --link-color: #0969da;
+  --link-hover: #0550ae;
+  --decor-accent: var(--accent-blue);
+  --scrollbar-thumb-hover: var(--accent-blue);
+  --btn-hover-bg: #eaeef2;
+  --btn-primary-bg: var(--accent-green);
+  --input-focus-border: var(--accent-blue);
+  --input-focus-shadow: 0 0 0 0.2rem rgba(9, 105, 218, 0.25);
+  --table-row-hover-bg: rgba(9, 105, 218, 0.08);
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 16px 32px rgba(0, 0, 0, 0.1);
+  --radius-card: 12px;
+  --radius-btn: 8px;
+
+  /* Карточки метрик — светлая тема */
+  --metric-card-bg: linear-gradient(135deg, rgba(9, 105, 218, 0.1), rgba(9, 105, 218, 0.04));
+  --metric-card-shadow: inset 0 0 0 1px rgba(9, 105, 218, 0.12);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(45, 164, 78, 0.12), rgba(45, 164, 78, 0.05));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(45, 164, 78, 0.15);
+
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Осень — золотая листва, тыква, тёплые оранжево-коричневые */
+[data-theme="autumn"] {
+  --bg-primary: #fff8f0;
+  --bg-secondary: #f5e6d3;
+  --bg-tertiary: #ebd4b8;
+  --border-color: #c4a574;
+  --text-primary: #3d2e1f;
+  --text-secondary: #5c4532;
+  --text-muted: #6b5544;
+
+  --accent-blue: #1e5a7a;
+  --accent-green: #4a7c59;
+  --accent-yellow: #c17a0a;
+  --accent-red: #b8432a;
+  --danger: #c44536;
+
+  --accent-primary: #c17a0a;
+  --accent-success: var(--accent-green);
+  --text-on-accent: #ffffff;
+
+  /* Градиент фона: тёплый закат / осенняя листва */
+  --body-bg: linear-gradient(180deg, #fff8f0 0%, #fce8d8 35%, #f5e6d3 65%, #ebd4b8 100%);
+  --body-pattern: radial-gradient(circle at 20% 80%, rgba(193, 122, 10, 0.04) 0%, transparent 50%);
+
+  --focus-ring: var(--accent-primary);
+  --link-color: #a65a0a;
+  --link-hover: #7a4208;
+  --decor-accent: var(--accent-primary);
+  --scrollbar-thumb-hover: var(--accent-primary);
+  --btn-hover-bg: #ebd4b8;
+  --input-focus-border: var(--accent-primary);
+  --input-bg: #f5e6d3;
+  --input-focus-shadow: 0 0 0 0.2rem rgba(193, 122, 10, 0.25);
+  --btn-primary-bg: var(--accent-primary);
+  --table-row-hover-bg: rgba(193, 122, 10, 0.1);
+
+  /* Карточки метрик: осень — тёплые, выразительные */
+  --metric-card-bg: linear-gradient(135deg, rgba(193, 122, 10, 0.22), rgba(196, 165, 116, 0.12));
+  --metric-card-shadow: inset 0 0 0 1px rgba(193, 122, 10, 0.2), 0 2px 8px rgba(92, 69, 50, 0.08);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(74, 124, 89, 0.2), rgba(196, 165, 116, 0.1));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(74, 124, 89, 0.18), 0 2px 8px rgba(61, 82, 61, 0.06);
+
+  /* Тени тёплые, скругления мягче */
+  --shadow-sm: 0 2px 6px rgba(193, 122, 10, 0.12);
+  --shadow-md: 0 4px 14px rgba(92, 69, 50, 0.15);
+  --shadow-card: 0 16px 36px rgba(92, 69, 50, 0.12);
+  --radius-card: 14px;
+  --radius-btn: 10px;
+
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Зима — снег, лёд, морозный голубой */
+[data-theme="winter"] {
+  --bg-primary: #e8f0f7;
+  --bg-secondary: #dae5f0;
+  --bg-tertiary: #c9d9e8;
+  --border-color: #9fb8d0;
+  --text-primary: #1e2d3d;
+  --text-secondary: #3d5268;
+  --text-muted: #4d6175;
+
+  --accent-blue: #1d6cb5;
+  --accent-green: #0d7a6f;
+  --accent-yellow: #5a6b7d;
+  --accent-red: #a81c1c;
+  --danger: #c53030;
+
+  --accent-primary: #1d6cb5;
+  --accent-success: var(--accent-green);
+  --text-on-accent: #ffffff;
+
+  /* Градиент фона: снег и лёд, холодный отблеск */
+  --body-bg: linear-gradient(180deg, #f0f7fc 0%, #e4eef6 40%, #dae5f0 70%, #c9d9e8 100%);
+  --body-pattern: radial-gradient(circle at 80% 20%, rgba(29, 108, 181, 0.05) 0%, transparent 45%);
+
+  --focus-ring: var(--accent-primary);
+  --link-color: #1d6cb5;
+  --link-hover: #155a94;
+  --decor-accent: var(--accent-primary);
+  --scrollbar-thumb-hover: var(--accent-primary);
+  --btn-hover-bg: #c9d9e8;
+  --btn-primary-bg: var(--accent-primary);
+  --input-focus-border: var(--accent-primary);
+  --input-bg: #dae5f0;
+  --table-row-hover-bg: rgba(29, 108, 181, 0.1);
+
+  /* Карточки метрик: зима — холодный голубой */
+  --metric-card-bg: linear-gradient(135deg, rgba(29, 108, 181, 0.18), rgba(201, 217, 232, 0.12));
+  --metric-card-shadow: inset 0 0 0 1px rgba(29, 108, 181, 0.2), 0 2px 8px rgba(61, 82, 104, 0.08);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(13, 122, 111, 0.16), rgba(201, 217, 232, 0.1));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(13, 122, 111, 0.18), 0 2px 8px rgba(61, 82, 104, 0.06);
+
+  /* Тени холодные, голубоватый оттенок */
+  --shadow-sm: 0 2px 6px rgba(29, 108, 181, 0.1);
+  --shadow-md: 0 4px 14px rgba(61, 82, 104, 0.14);
+  --shadow-card: 0 16px 36px rgba(61, 82, 104, 0.12);
+  --radius-card: 10px;
+  --radius-btn: 8px;
+
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Весна — первая зелень, цветение, нежная пастель */
+[data-theme="spring"] {
+  --bg-primary: #f0faf0;
+  --bg-secondary: #e0f0dc;
+  --bg-tertiary: #cce5c8;
+  --border-color: #8fbf8a;
+  --text-primary: #243324;
+  --text-secondary: #3d523d;
+  --text-muted: #4d634d;
+
+  --accent-blue: #0b7a9e;
+  --accent-green: #2d8b4a;
+  --accent-yellow: #7cb342;
+  --accent-red: #c62828;
+  --danger: #d32f2f;
+
+  --accent-primary: #2d8b4a;
+  --accent-success: var(--accent-green);
+  --text-on-accent: #ffffff;
+
+  /* Градиент фона: молодая зелень, свежесть */
+  --body-bg: linear-gradient(180deg, #f8fcf8 0%, #e8f5e6 45%, #e0f0dc 75%, #cce5c8 100%);
+  --body-pattern: radial-gradient(circle at 30% 70%, rgba(45, 139, 74, 0.05) 0%, transparent 50%);
+
+  --focus-ring: var(--accent-primary);
+  --link-color: #2d8b4a;
+  --link-hover: #1e6b38;
+  --decor-accent: var(--accent-primary);
+  --scrollbar-thumb-hover: var(--accent-primary);
+  --btn-hover-bg: #cce5c8;
+  --btn-primary-bg: var(--accent-primary);
+  --input-focus-border: var(--accent-primary);
+  --input-bg: #e0f0dc;
+  --table-row-hover-bg: rgba(45, 139, 74, 0.1);
+
+  /* Карточки метрик: весна — зелень, цветение */
+  --metric-card-bg: linear-gradient(135deg, rgba(45, 139, 74, 0.18), rgba(204, 229, 200, 0.12));
+  --metric-card-shadow: inset 0 0 0 1px rgba(45, 139, 74, 0.2), 0 2px 8px rgba(61, 82, 61, 0.08);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(123, 179, 66, 0.16), rgba(204, 229, 200, 0.1));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(123, 179, 66, 0.18), 0 2px 8px rgba(61, 82, 61, 0.06);
+
+  /* Тени зелёноватый оттенок, скругления мягкие */
+  --shadow-sm: 0 2px 6px rgba(45, 139, 74, 0.1);
+  --shadow-md: 0 4px 14px rgba(61, 82, 61, 0.12);
+  --shadow-card: 0 16px 36px rgba(61, 82, 61, 0.1);
+  --radius-card: 14px;
+  --radius-btn: 10px;
+
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Лето — солнце, свет: чистый жёлтый/золотой (не голубой как зима, не оранжево-коричневый как осень) */
+[data-theme="summer"] {
+  --bg-primary: #fffde7;
+  --bg-secondary: #fff9d6;
+  --bg-tertiary: #f5eeb8;
+  --border-color: #d4c268;
+  --text-primary: #2d2818;
+  --text-secondary: #4a4220;
+  --text-muted: #5c5528;
+
+  --accent-blue: #0284c7;
+  --accent-green: #16a34a;
+  --accent-yellow: #b8860b;
+  --accent-red: #dc2626;
+  --danger: #e11d48;
+
+  /* Акцент лета — золото/солнце (не оранжевый как осень: #c17a0a) */
+  --accent-primary: #c49008;
+  --accent-success: var(--accent-green);
+  --text-on-accent: #1a1a0a;
+
+  /* Градиент: солнечный свет — от лимонного к золотистому */
+  --body-bg: linear-gradient(180deg, #fffef5 0%, #fffde7 25%, #fff9d6 55%, #f5eeb8 100%);
+  --body-pattern: radial-gradient(circle at 75% 20%, rgba(212, 194, 104, 0.08) 0%, transparent 50%);
+
+  --focus-ring: var(--accent-primary);
+  --link-color: #9a7b00;
+  --link-hover: #7a6200;
+  --decor-accent: var(--accent-primary);
+  --scrollbar-thumb-hover: var(--accent-primary);
+  --btn-hover-bg: #f5eeb8;
+  --btn-primary-bg: #d4a017;
+  --input-focus-border: var(--accent-primary);
+  --input-focus-shadow: 0 0 0 0.2rem rgba(196, 144, 8, 0.3);
+  --input-bg: #fff9d6;
+  --table-row-hover-bg: rgba(196, 144, 8, 0.12);
+
+  /* Карточки метрик: лето — солнце/золото, выразительные */
+  --metric-card-bg: linear-gradient(135deg, rgba(212, 194, 104, 0.28), rgba(245, 238, 184, 0.18));
+  --metric-card-shadow: inset 0 0 0 1px rgba(212, 194, 104, 0.35), 0 2px 10px rgba(106, 88, 20, 0.1);
+  --metric-card-light-bg: linear-gradient(135deg, rgba(22, 163, 74, 0.18), rgba(245, 238, 184, 0.15));
+  --metric-card-light-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.25), 0 2px 8px rgba(74, 66, 32, 0.06);
+
+  /* Тени тёплые, золотистые */
+  --shadow-sm: 0 2px 6px rgba(196, 144, 8, 0.12);
+  --shadow-md: 0 4px 14px rgba(106, 88, 20, 0.14);
+  --shadow-card: 0 16px 36px rgba(106, 88, 20, 0.1);
+  --radius-card: 14px;
+  --radius-btn: 10px;
+
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-slow: 0.35s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}

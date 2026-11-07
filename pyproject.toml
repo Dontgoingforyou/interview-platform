@@ -1,0 +1,112 @@
+[tool.poetry]
+name = "interview-management-platform"
+version = "0.1.0"
+description = "Личный пет-проект: платформа учёта студентов, собеседований и офферов"
+authors = ["Mikhail Mikhailusov <mishael000@yandex.ru>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+django = ">=5.2.7,<6.0.0"
+psycopg2-binary = ">=2.9.11,<3.0.0"
+python-dotenv = ">=1.2.1,<2.0.0"
+requests = ">=2.32.5,<3.0.0"
+django-autocomplete-light = { git = "https://github.com/yourlabs/django-autocomplete-light.git" }
+openpyxl = ">=3.1.5,<4.0.0"
+gunicorn = ">=23.0.0,<24.0.0"
+pandas = "^2.3.3"
+celery = "^5.6.0"
+redis = "^7.1.0"
+django-celery-beat = "^2.8.1"
+flower = "^2.0.1"
+djangorestframework = "^3.15.2"
+drf-spectacular = "^0.27.2"
+django-cors-headers = "^4.3.1"
+django-vite = "^3.1.0"
+markdown = "^3.6"
+bleach = "^6.1.0"
+# pgvector и sentence-transformers устанавливаются через pip в Dockerfile
+# чтобы избежать установки CUDA версии torch через Poetry
+openai = "^2.16.0"
+pgvector = "^0.4.1"
+django-compressor = "^4.6.0"
+cyrtranslit = "^1.2.0"
+yadisk = {extras = ["sync-defaults"], version = "^3.4.0"}
+boto3 = "^1.35.0"
+cryptography = ">=44.0.0"
+deepgram-sdk = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.3.0,<9.0.0"
+pytest-django = ">=4.11.1,<5.0.0"
+pytest-mock = ">=3.15.1,<4.0.0"
+pytest-cov = "^7.0.0"
+pytest-xdist = "^3.8.0"
+django-silk = "^5.4.3"
+flake8 = "^7.0.0"
+django-debug-toolbar = "^4.3.0"
+pytest-env = "^1.2.0"
+pre-commit = "^4.5.1"
+mypy = "^1.19.1"
+django-stubs = "^5.2.9"
+djangorestframework-stubs = "^3.16.8"
+celery-types = "^0.24.0"
+types-python-dateutil = "^2.9.0.20260124"
+types-requests = "^2.32.4.20260107"
+types-markdown = "^3.10.2.20260211"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "core.settings"
+pythonpath = ["project"]
+python_files = "test_*.py"
+addopts = "--tb=short -n 4 --dist=loadfile"
+env = [
+    "DISABLE_VECTOR_SIGNALS=1",
+    "DJANGO_TESTING=1",
+    "CELERY_BROKER_URL=memory://",
+    "CELERY_RESULT_BACKEND=cache+memory://",
+]
+filterwarnings = [
+    "ignore:Error when trying to teardown test databases:pytest.PytestWarning",
+]
+markers = [
+    "django_db: Тесты, требующие доступа к базе данных",
+    "views: Тесты для views",
+    "models: Тесты для моделей",
+    "forms: Тесты для форм",
+    "services: Тесты для сервисов",
+    "utils: Тесты для утилит",
+    "validators: Тесты для валидаторов",
+    "signals: Тесты для сигналов",
+    "api: Тесты для API-эндпоинтов",
+    "serializers: Тесты для сериализаторов",
+]
+
+[tool.coverage.run]
+source = ["project"]
+omit = [
+    "*/migrations/*",
+    "tests/*",
+    ".venv/*",
+    "manage.py",
+    "conftest.py",
+    "*/staticfiles/*",
+    "project/core/asgi.py",
+    "project/core/wsgi.py",
+]
+parallel = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"

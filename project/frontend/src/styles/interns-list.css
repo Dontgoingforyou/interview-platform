@@ -1,0 +1,311 @@
+/* Список студентов: адаптив и выравнивание с продом */
+
+.interns-list-page .interns-table-desktop {
+  display: none;
+}
+
+.interns-list-page .interns-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .interns-list-page .interns-table-desktop {
+    display: block;
+  }
+
+  .interns-list-page .interns-mobile-cards {
+    display: none;
+  }
+}
+
+/* Скелетон полей внутри карточки «Поиск и фильтры» (как interviews-subsection-card) */
+.interns-filters-skeleton-head {
+  cursor: default;
+  pointer-events: none;
+}
+
+.interns-filters-skeleton-head .interviews-subsection-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.45;
+}
+
+.interns-filters-skeleton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-content: flex-start;
+  padding: 4px 12px 14px;
+  margin: 0;
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.interns-filters-skeleton__cell {
+  flex: 1 1 200px;
+  min-width: 180px;
+  max-width: 320px;
+}
+
+/* Отступ блока фильтров от таблицы — как у секций на странице собеседований */
+.interns-list-page .interviews-subsection {
+  margin-bottom: 0.25rem;
+}
+
+.interns-filter-summary {
+  margin: 0.75rem 0;
+}
+
+.empty-list-msg {
+  padding: 1rem 0;
+  color: var(--color-text-muted, #666);
+}
+
+.text-muted {
+  color: var(--color-text-muted, #666);
+}
+
+/* Секция подключения Telegram — скрыта до явного открытия */
+.rag-telegram-section {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  margin-top: 0;
+  transition:
+    max-height 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity 0.25s ease,
+    margin-top 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.rag-telegram-section--visible {
+  max-height: 40rem;
+  opacity: 1;
+  pointer-events: auto;
+  margin-top: 1.5rem;
+}
+
+/* Плашки RAG / статусы в таблице */
+.intern-rag-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  cursor: default;
+}
+
+a.intern-rag-badge {
+  cursor: pointer;
+}
+
+a.intern-rag-badge:hover {
+  text-decoration: none;
+  filter: brightness(1.08);
+}
+
+.intern-rag-badge--needed {
+  background: #c2410c;
+  color: #fff;
+}
+
+.intern-rag-badge--connected {
+  background: #166534;
+  color: #fff;
+}
+
+.intern-rag-badge--left {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.intern-rag-badge--offer {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.rag-status-cell {
+  vertical-align: middle;
+}
+
+/* ФИО шире — забирает место у избыточной колонки «Действия» (у студентов только 2 кнопки) */
+.table-scroll .data-table.data-table--interns thead th:nth-child(2),
+.table-scroll .data-table.data-table--interns tbody td:nth-child(2) {
+  min-width: 18rem;
+  width: 22%;
+}
+
+.table-scroll .data-table.data-table--interns th.interviews-col-actions,
+.table-scroll .data-table.data-table--interns td.interviews-col-actions {
+  min-width: 5.5rem;
+  width: 1%;
+}
+
+/* Липкие колонки при скролле: чётные строки — непрозрачная подложка + тинт зебры (иначе просвечивает) */
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--interns.data-table--sticky-leading tbody tr:nth-child(even) > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--interns.data-table--sticky-leading tbody tr:nth-child(even) > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(var(--intern-table-zebra, rgba(255, 255, 255, 0.05)), var(--intern-table-zebra, rgba(255, 255, 255, 0.05)));
+}
+
+/* Таблица: размер шрифта как у .data-table в tables.css (14px), зебра и ссылки */
+.table-scroll .data-table.data-table--interns tbody td {
+  vertical-align: middle;
+}
+
+.table-scroll .data-table.data-table--interns tbody tr:nth-child(even) td {
+  background: var(--intern-table-zebra, rgba(255, 255, 255, 0.03));
+}
+
+.table-scroll .data-table.data-table--interns tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.table-scroll .data-table.data-table--interns tbody tr:hover td {
+  background: var(--table-row-hover-bg);
+}
+
+.table-scroll .data-table.data-table--interns tbody tr:nth-child(even):hover td {
+  background: var(--table-row-hover-bg);
+}
+
+/* Цвет ссылок в ячейках — общее правило в tables.css */
+
+/* ── Мобильная карточка студента ─────────────────────────────────────── */
+
+.intern-mobile-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .intern-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.intern-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.intern-mobile-card__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.intern-mobile-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.intern-mobile-card__id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.intern-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.intern-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.intern-mobile-card__dl dt {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.intern-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.intern-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.intern-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+/*
+ * Плоская таблица студентов: перенос по строкам/фразам, не «слово в строку»;
+ * стрелка сортировки в одном ряду с подписью (как визуально у коротких колонок в собеседованиях);
+ * «Действия» на одной базовой линии с многострочными заголовками.
+ */
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th {
+  vertical-align: bottom;
+}
+
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th:not(.interviews-col-actions) {
+  max-width: 15rem;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  line-height: 1.35;
+}
+
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th.sortable {
+  white-space: normal;
+}
+
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th.sortable .sort-header-btn {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  max-width: 100%;
+}
+
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th.sortable .sort-header-btn__label {
+  white-space: normal;
+  text-align: left;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.table-scroll.table-scroll--plain .data-table.data-table--interns thead th.sortable .sort-header-btn__mark {
+  flex-shrink: 0;
+  line-height: 1.25;
+  margin-top: 0.08em;
+}

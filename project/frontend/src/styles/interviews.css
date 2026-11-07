@@ -1,0 +1,1319 @@
+/* --- Собеседования (React): метрики, фильтры, специфика таблицы, модалки импорта/транскрипции --- */
+/* Общие: components.css (каркас страницы, кнопки), tables.css (.table-scroll / .data-table). */
+@import './list-pages.css';
+
+.interview-form-back-row {
+  margin-bottom: 0.75rem;
+}
+
+.interview-form-required-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.interview-form {
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.interview-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.interview-form input,
+.interview-form select,
+.interview-form textarea {
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg, var(--bg-primary));
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+/* Список собеседований — сетка метрик (фиксированное число колонок по ширине контейнера main) */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+@container layoutContent (min-width: 400px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container layoutContent (min-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@container layoutContent (min-width: 880px) {
+  .metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@container layoutContent (min-width: 1120px) {
+  .metrics-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.metric-card {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--metric-card-bg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--metric-card-shadow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .metric-card {
+    transition:
+      border-color var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .metric-card:hover {
+    border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border-color));
+  }
+}
+
+.metric-card.light {
+  background: var(--metric-card-light-bg);
+  box-shadow: var(--metric-card-light-shadow);
+}
+
+.metric-card small {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.metric-card strong {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metric-card strong[data-placeholder] {
+  opacity: 0;
+}
+
+.metrics-grid.metrics-loaded .metric-card strong {
+  opacity: 1;
+}
+
+.metric-card .muted {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.metric-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  color: var(--text-secondary);
+  cursor: help;
+  position: relative;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.metric-info-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.metric-info-icon:hover {
+  color: var(--accent-primary);
+  opacity: 1;
+}
+
+.metric-card.light .metric-info-icon {
+  color: var(--text-secondary);
+}
+
+.metric-card.light .metric-info-icon:hover {
+  color: var(--accent-success);
+}
+
+/* Портал-тултип — рендерится в document.body, не зависит от overflow родителей */
+.metric-info-portal-tooltip {
+  position: fixed;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 24px));
+  pointer-events: none;
+  z-index: 9999;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+  text-align: left;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* Аккордеон «Статистика за всё время» */
+.analytics-accordion {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  margin: 2rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.analytics-accordion-header {
+  cursor: pointer;
+  padding: 1rem 1.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-secondary);
+  font-weight: 600;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.analytics-accordion-header::before {
+  content: '▶';
+  display: inline-block;
+  transition: transform var(--duration-slow) var(--ease-out);
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.analytics-accordion.open .analytics-accordion-header::before {
+  transform: rotate(90deg);
+}
+
+.analytics-accordion-header:hover {
+  background: var(--bg-tertiary);
+}
+
+.analytics-accordion.open {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.analytics-accordion.open .analytics-accordion-header {
+  background: var(--bg-tertiary);
+}
+
+.analytics-accordion-content {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 1.5rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid transparent;
+  transition:
+    opacity var(--duration-normal) ease,
+    max-height var(--duration-slow) var(--ease-out),
+    padding var(--duration-slow) var(--ease-out),
+    border-top-color var(--duration-normal) ease;
+}
+
+.analytics-accordion.open .analytics-accordion-content {
+  opacity: 1;
+  max-height: 2000px;
+  overflow: visible;
+  padding: 1.5rem;
+  border-top-color: var(--border-color);
+  transition:
+    opacity var(--duration-normal) ease 0.1s,
+    max-height var(--duration-slow) var(--ease-out),
+    padding var(--duration-slow) var(--ease-out),
+    border-top-color var(--duration-normal) ease;
+}
+
+@media (max-width: 768px) {
+  .analytics-accordion {
+    margin: 1.5rem 0;
+    border-radius: 10px;
+  }
+
+  .analytics-accordion-header {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .analytics-accordion-header::before {
+    font-size: 0.85em;
+  }
+
+  .analytics-accordion.open .analytics-accordion-content {
+    padding: 1rem;
+  }
+
+  .analytics-accordion-content {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-accordion {
+    margin: 1rem 0;
+    border-radius: 8px;
+  }
+
+  .analytics-accordion-header {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.938rem;
+  }
+
+  .analytics-accordion.open .analytics-accordion-content {
+    padding: 0.875rem;
+  }
+
+  .analytics-accordion-content {
+    padding: 0 0.875rem;
+  }
+}
+
+/* Сводка по типам собеседований в блоке фильтров */
+.interview-type-stats {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.interview-type-stats h3 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.stats-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.938rem;
+}
+
+.stats-total {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.stats-item {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.stats-label {
+  color: var(--text-secondary);
+}
+
+.stats-item strong,
+.stats-total strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.stats-separator {
+  color: var(--border-color);
+  font-weight: 300;
+}
+
+/* Чипы и мини-бары долей в сводке по типам */
+.stats-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.stats-chip {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-width: 140px;
+  flex: 1 1 160px;
+  max-width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.stats-chip--total {
+  flex: 1 1 100%;
+  background: color-mix(in srgb, var(--accent-primary) 12%, var(--bg-primary));
+  border-color: color-mix(in srgb, var(--accent-primary) 28%, var(--border-color));
+}
+
+.stats-chip-bar-track {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 3px;
+  background: var(--bg-tertiary);
+  pointer-events: none;
+}
+
+.stats-chip-bar-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  min-width: 0;
+  transition: width var(--duration-normal) var(--ease-out);
+}
+
+.stats-chip-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  z-index: 1;
+  flex-basis: 100%; /* метка всегда занимает полную ширину → число всегда под ней */
+  line-height: 1.3;
+}
+
+.stats-chip-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  z-index: 1;
+}
+
+.stats-chip-pct {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  z-index: 1;
+}
+
+.stats-chip--total .stats-chip-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.stats-chip--total .stats-chip-value {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .interview-type-stats {
+    padding: 12px 16px;
+  }
+
+  .stats-summary {
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+
+  .stats-separator {
+    display: none;
+  }
+
+  .stats-item {
+    flex: 1 1 auto;
+    min-width: 45%;
+  }
+
+  .stats-chip {
+    flex: 1 1 100%;
+  }
+}
+
+
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(10),
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(11),
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(13),
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(14) {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-scroll .data-table.interviews-data-table thead th:nth-child(12),
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(12) {
+  min-width: 150px;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(14) > a {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(1),
+.table-scroll .data-table.interviews-data-table thead th:nth-child(1) {
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+}
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(2),
+.table-scroll .data-table.interviews-data-table thead th:nth-child(2) {
+  min-width: 220px;
+}
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(7),
+.table-scroll .data-table.interviews-data-table thead th:nth-child(7) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.table-scroll .data-table.interviews-data-table tbody td:nth-child(8),
+.table-scroll .data-table.interviews-data-table thead th:nth-child(8) {
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Внутри <td>, не на самой ячейке — иначе ломается vertical-align и строка «съезжает» вверх */
+.interview-table-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.2rem;
+  align-items: center;
+  justify-content: flex-start;
+  vertical-align: middle;
+}
+
+/* Защита: если класс всё же оказался на <td> — не ломаем display:table-cell */
+td.interview-table-actions {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* Кнопка транскрипции в одном ряду с действиями ✏️ 📋 */
+.transcription-btn-wrap {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.transcription-btn-wrap form {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.transcription-btn-wrap .btn-danger {
+  background: var(--accent-red);
+  color: var(--text-on-accent, #fff);
+  border-color: var(--accent-red);
+}
+
+.transcription-btn-wrap .btn-danger:hover:not(:disabled) {
+  background: rgba(248, 81, 73, 0.85);
+  border-color: var(--accent-red);
+  color: var(--text-on-accent, #fff);
+}
+
+.action-buttons form {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions a.interviews-action-emoji,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions button.interviews-action-emoji {
+  flex-shrink: 0;
+}
+
+/* SVG-иконки в кнопках действий */
+.table-action-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Модалка полного текста транскрипции */
+.transcription-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-out, ease);
+}
+
+.transcription-modal-overlay.interviews-modal-fade--open {
+  opacity: 1;
+}
+
+.transcription-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: min(1200px, 92vw);
+  width: min(1200px, 92vw);
+  max-height: min(90vh, 100%);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.2));
+  overflow: hidden;
+  opacity: 0.88;
+  transform: translateY(-12px) scale(0.98);
+  transition:
+    opacity 0.24s var(--ease-out, ease),
+    transform 0.24s var(--ease-out, ease);
+}
+
+.transcription-modal-overlay.interviews-modal-fade--open .transcription-modal {
+  opacity: 1;
+  transform: none;
+}
+
+.transcription-modal-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.transcription-modal-title {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  margin-right: auto;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.transcription-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.transcription-modal-download-btn {
+  font-weight: 600;
+  white-space: normal;
+  max-width: min(100%, 22rem);
+  text-align: center;
+}
+
+.transcription-modal-download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.transcription-modal-close {
+  flex-shrink: 0;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.transcription-modal-close:hover {
+  opacity: 1;
+}
+
+.transcription-modal-inner {
+  flex: 1;
+  min-height: 0;
+  padding: 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.transcription-modal-status {
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+}
+
+.transcription-modal-body {
+  margin: 1rem 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 75vh;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  line-height: 1.6;
+  color: var(--text-primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.transcription-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcription-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transcription-modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.transcription-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+.transcription-modal-footer {
+  flex-shrink: 0;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transcription-modal-overlay,
+  .transcription-modal-overlay.interviews-modal-fade--open,
+  .transcription-modal {
+    transition: none !important;
+  }
+
+  .transcription-modal-overlay.interviews-modal-fade--open {
+    opacity: 1;
+  }
+
+  .transcription-modal-overlay.interviews-modal-fade--open .transcription-modal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Компактные кнопки в колонке действий таблицы собеседований.
+ * Идёт ПОСЛЕ глобальных .btn-success/.btn-danger { height: 36px }.
+ */
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact .btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact a.btn-outline-primary.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact .btn-outline-danger.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-outline-primary.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-outline-danger.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-success.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-danger.btn-small,
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-warning.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact .btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact a.btn-outline-primary.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact .btn-outline-danger.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-outline-primary.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-outline-danger.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-success.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-danger.btn-small,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-warning.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact .btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact a.btn-outline-primary.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact .btn-outline-danger.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-outline-primary.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-outline-danger.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-success.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-danger.btn-small,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-warning.btn-small {
+  font-size: 0.875rem;
+  line-height: 1;
+  padding: 0 0.5rem;
+  min-height: 36px;
+  height: 36px;
+  min-width: 36px;
+  width: auto;
+  max-height: none;
+  box-sizing: border-box;
+  gap: 0;
+}
+
+/* Завершённая транскрипция — цвета кнопки успеха (размер общий с блоком выше) */
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-success.btn-small.interview-tr-btn,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-success.btn-small.interview-tr-btn,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-success.btn-small.interview-tr-btn {
+  background: var(--accent-success, #2ea043);
+  color: var(--text-on-accent, #fff);
+  border: 1px solid transparent;
+}
+
+.table-scroll .data-table td.interviews-col-actions .interview-table-actions--compact button.btn-warning.btn-small.interview-tr-btn,
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.btn-warning.btn-small.interview-tr-btn,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.btn-warning.btn-small.interview-tr-btn {
+  border: 1px solid transparent;
+  color: var(--text-on-accent, #fff);
+}
+
+/* Кнопка «Транскрибировать»: строго 36×36 при любом статусе (колонка записи и отдельная колонка HR) */
+.table-scroll .data-table td .interviews-database-recording-cell .interview-table-actions--compact button.interview-tr-btn,
+.table-scroll .data-table td.action-buttons.interview-table-actions .interview-table-actions--compact button.interview-tr-btn {
+  width: 36px;
+  max-width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@keyframes interview-tr-warning-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(217, 155, 0, 0.45);
+  }
+  50% {
+    opacity: 0.82;
+    box-shadow: 0 0 0 4px rgba(217, 155, 0, 0);
+  }
+}
+
+.interview-tr-btn.interview-tr-btn--pulse:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  animation: interview-tr-warning-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interview-tr-btn.interview-tr-btn--pulse:disabled {
+    animation: none;
+  }
+}
+
+/* Кнопка транскрибации — квадрат как ✏️; размер в админском режиме задаёт блок --compact выше */
+button.interview-tr-btn {
+  display: inline-flex;
+  padding: 0;
+  border-radius: var(--radius-btn) !important;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Зелёный цвет кнопки успешной транскрипции — без привязки к контексту таблицы */
+button.interview-tr-btn.btn-success {
+  background: var(--accent-success, #2ea043);
+  color: var(--text-on-accent, #fff);
+  border: 1px solid transparent;
+}
+
+/* Перебиваем глобальный .btn-success:hover, который сбрасывает цвет на стандартный */
+button.interview-tr-btn.btn-success:hover:not(:disabled),
+button.interview-tr-btn.btn-success:active:not(:disabled) {
+  background: var(--accent-success, #2ea043);
+  border-color: transparent;
+  color: var(--text-on-accent, #fff);
+  opacity: 0.88;
+}
+
+
+.interview-table-actions--compact {
+  max-width: none;
+}
+
+/* ─────────────────────────────────────────────────────
+   Анимация поля «Ссылка на созвон» в форме:
+   показывается плавно только при interview_format === 'online'.
+   ───────────────────────────────────────────────────── */
+
+.interview-form-link-group {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  transition:
+    max-height var(--duration-normal) var(--ease-out),
+    opacity var(--duration-fast) ease,
+    margin var(--duration-normal) var(--ease-out);
+}
+
+.interview-form-link-group--visible {
+  max-height: 6rem;
+  opacity: 1;
+  pointer-events: auto;
+  margin-top: 0;
+}
+
+
+.interviews-section-meta {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.interviews-section-meta strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.interviews-table-section .interviews-section-title {
+  margin-top: 0;
+}
+
+/* Карточки метрик за 30 дней — без кнопки сворачивания */
+.interviews-metrics-static-heading {
+  margin: 0 0 0.5rem;
+}
+
+.metrics-grid-section__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.metrics-grid-section__title-row .interviews-metrics-static-heading {
+  margin: 0;
+}
+
+.metrics-grid-section__title-end {
+  flex-shrink: 0;
+}
+
+/* Скелетон: два блока под графики (дашборд менеджеров) */
+.list-page-skeleton-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.list-page-skeleton-chart {
+  flex: 1 1 280px;
+  min-height: 280px;
+  border-radius: 8px;
+}
+
+
+/* metrics-grid не имеет собственных отступов — добавляем */
+.interviews-subsection-card .interviews-collapsible-block__inner > .metrics-grid {
+  margin: 0;
+  padding: 0.75rem;
+}
+
+/* Компактный вид статистики типов внутри карточки секции */
+.interviews-subsection-card .interview-type-stats--embedded {
+  padding: 10px 12px;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chips {
+  gap: 6px;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip {
+  padding: 6px 10px;
+  min-width: 120px;
+  flex: 1 1 130px;
+  gap: 4px 8px;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip--total {
+  flex: 0 1 auto;
+  min-width: auto;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip-value {
+  font-size: 0.95rem;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip--total .stats-chip-value {
+  font-size: 1rem;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip-label {
+  font-size: 0.75rem;
+}
+
+.interviews-subsection-card .interview-type-stats--embedded .stats-chip-pct {
+  font-size: 0.7rem;
+}
+
+/* Сводка по типам внутри CollapsibleSection — без второго заголовка */
+.interview-type-stats--embedded {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Пустой список */
+.interviews-empty-state {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: var(--radius-card);
+  border: 1px dashed var(--border-color);
+  background: color-mix(in srgb, var(--bg-secondary) 88%, var(--bg-primary));
+  margin-bottom: 1rem;
+}
+
+.interviews-empty-state__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.interviews-empty-state__text {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Бейджи типа собеседования в таблице */
+.interview-type-badge {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interview-type-badge--danger {
+  border-color: color-mix(in srgb, var(--accent-red) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-red) 14%, var(--bg-tertiary));
+  color: var(--danger-text, var(--accent-red));
+}
+
+.interview-type-badge--success {
+  border-color: color-mix(in srgb, var(--accent-success) 40%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-success) 12%, var(--bg-tertiary));
+  color: var(--text-primary);
+}
+
+.interview-type-badge--tech {
+  border-color: color-mix(in srgb, var(--accent-blue) 40%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-blue) 12%, var(--bg-tertiary));
+}
+
+.interview-type-badge--hr {
+  border-color: color-mix(in srgb, var(--accent-yellow) 35%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-yellow) 10%, var(--bg-tertiary));
+}
+
+.interview-type-badge--screening {
+  background: var(--bg-secondary);
+}
+
+.interview-type-badge--muted {
+  opacity: 0.92;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Тулбар списка собеседований. */
+@media (max-width: 768px) {
+  .interviews-list-page .page-header-with-actions {
+    justify-content: stretch;
+  }
+
+  .interviews-list-page .page-header-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .interviews-list-page .page-header-buttons > *:not(.badge) {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .interviews-list-page .page-header-buttons > .btn-success {
+    order: -3;
+  }
+
+  .interviews-list-page .page-header-buttons > .btn-primary {
+    order: -2;
+  }
+
+  .interviews-list-page .page-header-buttons > .btn-secondary {
+    order: -1;
+  }
+
+  .interviews-list-page .page-header-buttons > .badge {
+    order: 1;
+    align-self: center;
+    width: auto;
+    max-width: 100%;
+  }
+}
+
+/* Десктоп / мобильный список */
+.interviews-mobile-cards {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .interviews-table-desktop {
+    display: none;
+  }
+
+  .interviews-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Ячейка «Запись + транскрибация» в базе собеседований — в один ряд */
+.interviews-database-recording-cell {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.interviews-database-recording-cell a.btn-outline-primary.btn-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 0.75rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.interview-mobile-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-fast) var(--ease-out, ease), border-color var(--duration-fast) var(--ease-out, ease);
+}
+
+@media (min-width: 380px) {
+  .interview-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+@media (hover: hover) {
+  .interview-mobile-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--border-color) 60%, var(--accent-primary));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interview-mobile-card {
+    transition: none;
+  }
+}
+
+.interview-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.interview-mobile-card__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.interview-mobile-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.interview-mobile-card__id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.interview-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.interview-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.interview-mobile-card__dl dt {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.interview-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.interview-mobile-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+}
+
+.interview-mobile-card__links:empty {
+  display: none;
+}
+
+.interview-mobile-card__links a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.interview-mobile-card__links a:hover {
+  text-decoration: underline;
+}
+
+.interview-mobile-card__transcription {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.interview-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.interview-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Таблица: без translate на hover (ломает sticky). Зебра только у «карточной» таблицы (скелетон), не у plain-списка. */
+.table-scroll .data-table.interviews-data-table tbody tr {
+  transition:
+    box-shadow var(--duration-normal) ease,
+    background-color var(--duration-normal) ease;
+}
+
+.table-scroll .data-table.interviews-data-table tbody tr:hover {
+  transform: none;
+}
+
+.table-scroll:not(.table-scroll--plain) .data-table.interviews-data-table tbody tr:nth-child(even) > td {
+  background-color: color-mix(in srgb, var(--bg-tertiary) 35%, var(--bg-secondary));
+}
+
+.table-scroll:not(.table-scroll--plain) .data-table.interviews-data-table tbody tr:hover > td {
+  background: var(--table-row-hover-bg);
+}
+
+/* Липкие колонки и фон при скролле — общие правила в tables.css (.data-table--sticky-leading). */
+.table-scroll.table-scroll--plain .data-table.interviews-data-table th.interviews-col-actions,
+.table-scroll.table-scroll--plain .data-table.interviews-data-table td.interviews-col-actions {
+  min-width: 9.5rem;
+}

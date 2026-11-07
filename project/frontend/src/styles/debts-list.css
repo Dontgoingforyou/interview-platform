@@ -1,0 +1,318 @@
+/* Список долгов */
+
+/* Хвост таблицы: шире колонки, чтобы заполнять ширину контейнера */
+.table-scroll .data-table--debts th.debts-col--spread,
+.table-scroll .data-table--debts td.debts-col--spread {
+  min-width: 7rem;
+}
+
+.table-scroll .data-table--debts th.debts-col--lastpay,
+.table-scroll .data-table--debts td.debts-col--lastpay {
+  min-width: 9rem;
+}
+
+.table-scroll .data-table--debts th.debts-col--month,
+.table-scroll .data-table--debts td.debts-col--month {
+  min-width: 6.25rem;
+  text-align: center;
+}
+
+.table-scroll .data-table--debts th.debts-col--status,
+.table-scroll .data-table--debts td.debts-col--status {
+  min-width: 9.5rem;
+}
+
+.table-scroll .data-table--debts th.debts-col--bot,
+.table-scroll .data-table--debts td.debts-col--bot {
+  min-width: 7.5rem;
+}
+
+/* Колонка «Действия»: кнопки у правого края (перекрываем общее выравнивание слева из tables.css) */
+.table-scroll.table-scroll--plain .data-table--debts th.interviews-col-actions,
+.table-scroll.table-scroll--plain .data-table--debts td.interviews-col-actions {
+  text-align: right;
+  min-width: 5.5rem;
+}
+
+.table-scroll .data-table--debts td.interviews-col-actions .interview-table-actions--compact {
+  justify-content: flex-end;
+}
+
+/*
+ * tables.css: .table-scroll .data-table tbody tr:hover { transform: translateX(4px); } —
+ * из‑за этого при hover включается горизонтальный скролл у .table-scroll (overflow-x: auto).
+ * Специфичность выше, чем у общего правила, иначе при загрузке CSS из lazy-чанка порядок
+ * может оставить translateX активным. У стажёров — отдельный сброс .data-table--interns.
+ */
+.table-scroll.table-scroll--plain .data-table.data-table--debts tbody tr:hover,
+.table-scroll.table-scroll--plain .data-table.data-table--debts-by-month tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Липкие колонки: первая колонка «ФИО» шире, чем узкий ID в основном списке */
+.table-scroll .data-table.data-table--debts-by-month.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 14rem;
+  --data-table-sticky-col2-left: 14rem;
+}
+
+/* Подсветка строк долгов на липких ячейках: непрозрачная подложка + тинт (без просвечивания при скролле) */
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-not-paying > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-not-paying > td:nth-child(2),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-not-paying > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-not-paying > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(248, 81, 73, 0.14), rgba(248, 81, 73, 0.14));
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-not-paying:hover > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-not-paying:hover > td:nth-child(2),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-not-paying:hover > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-not-paying:hover > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(248, 81, 73, 0.22), rgba(248, 81, 73, 0.22));
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-paid-fully > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-paid-fully > td:nth-child(2),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-paid-fully > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-paid-fully > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(63, 185, 80, 0.14), rgba(63, 185, 80, 0.14));
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-paid-fully:hover > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts tbody tr.row-paid-fully:hover > td:nth-child(2),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-paid-fully:hover > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--debts-by-month tbody tr.row-paid-fully:hover > td:nth-child(2) {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(rgba(63, 185, 80, 0.22), rgba(63, 185, 80, 0.22));
+}
+
+.debts-list-page .debts-table-desktop {
+  display: none;
+}
+
+.debts-list-page .debts-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .debts-list-page .debts-table-desktop {
+    display: block;
+  }
+
+  .debts-list-page .debts-mobile-cards {
+    display: none;
+  }
+}
+
+.debts-mobile-card.row-not-paying {
+  border-left: 3px solid var(--accent-red);
+}
+
+.debts-mobile-card.row-paid-fully {
+  border-left: 3px solid var(--accent-green);
+}
+
+/*
+ * Мобильные карточки долгов: тот же визуал, что у interview-mobile-card / intern-mobile-card,
+ * но правила здесь — чтобы стили не зависели от порядка чанков и всегда применялись на debts-list-page.
+ */
+.debt-mobile-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .debt-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.debt-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.debt-mobile-card__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.debt-mobile-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.debt-mobile-card__id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.debt-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.debt-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.debt-mobile-card__dl dt {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.debt-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.debt-mobile-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+}
+
+.debt-mobile-card__links a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.debt-mobile-card__links a:hover {
+  text-decoration: underline;
+}
+
+.debt-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.debt-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+.debt-payment-section {
+  margin-top: 2rem;
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.debt-payment-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Кнопка-заголовок секции (аналог раскрытия в interns / RAG) */
+.debt-payment-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  margin: 0;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: inherit;
+  line-height: 1.3;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, 0.15s),
+    border-color var(--duration-fast, 0.15s);
+}
+
+.debt-payment-toggle:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-tertiary);
+}
+
+.debt-payment-toggle__chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.debt-expandable-block {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  margin-top: 0;
+  transition:
+    max-height 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity 0.25s ease,
+    margin-top 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.debt-expandable-block--visible {
+  max-height: 48rem;
+  opacity: 1;
+  pointer-events: auto;
+  margin-top: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .debt-expandable-block {
+    transition: none;
+  }
+}
+
+.debt-payment-card-inner {
+  padding: 0.75rem;
+}
+
+.debt-payment-section .debt-add-payment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin: 0;
+}
+
+.debt-add-payment-form-actions {
+  margin-top: 1rem;
+  padding-top: 0;
+}
+
+/* Просмотр по месяцам: ссылка «Назад» под заголовком, вне карточки */
+.debts-by-month-back {
+  margin: 0 0 1rem;
+}

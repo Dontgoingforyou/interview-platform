@@ -1,0 +1,73 @@
+/* Общая модалка импорта (components/ui/ImportModal) — глобально через index.css */
+
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-out, ease);
+}
+
+.import-modal-overlay.interviews-modal-fade--open {
+  opacity: 1;
+}
+
+.import-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  opacity: 0.85;
+  transform: translateY(-12px) scale(0.98);
+  transition:
+    opacity 0.24s var(--ease-out, ease),
+    transform 0.24s var(--ease-out, ease);
+}
+
+.import-modal-overlay.interviews-modal-fade--open .import-modal {
+  opacity: 1;
+  transform: none;
+}
+
+.import-modal__desc {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.95rem;
+}
+
+.import-modal__notes {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.import-modal__actions {
+  margin-top: 1rem;
+}
+
+.import-modal__task {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-modal-overlay,
+  .import-modal-overlay.interviews-modal-fade--open,
+  .import-modal {
+    transition: none !important;
+  }
+
+  .import-modal-overlay.interviews-modal-fade--open {
+    opacity: 1;
+  }
+
+  .import-modal-overlay.interviews-modal-fade--open .import-modal {
+    opacity: 1;
+    transform: none;
+  }
+}

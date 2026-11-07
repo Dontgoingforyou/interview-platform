@@ -1,0 +1,154 @@
+.alert {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 1rem;
+  background: var(--bg-tertiary);
+}
+
+/* Блок сообщений: справа сверху, въезд с края + отскок */
+.messages-block {
+  position: fixed;
+  top: 5rem;
+  right: 1.5rem;
+  z-index: 1060;
+  max-width: 420px;
+  width: calc(100vw - 3rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .messages-block .alert {
+    animation: slideInRightBounce 0.5s var(--ease-out);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .messages-block .alert.alert-closing {
+    animation: slideOutRight 0.4s var(--ease-out) forwards;
+  }
+}
+
+.alert-success {
+  border-left: 3px solid var(--accent-primary);
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+}
+
+.alert-error,
+.alert-danger {
+  border-left: 3px solid var(--accent-red);
+  background: rgba(248, 81, 73, 0.1);
+  color: var(--accent-red);
+}
+
+/* Стили для предупреждений в модальных окнах импорта */
+.alert-warning {
+  border-left: 4px solid var(--accent-yellow);
+  background: rgba(210, 153, 34, 0.1);
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.alert-warning strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.alert-warning ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.alert-warning li {
+  margin-bottom: 5px;
+}
+
+/* Информационный alert (для импорта дат) */
+.alert-info {
+  border-left: 4px solid var(--accent-primary);
+  background: var(--bg-secondary);
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.alert-info strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.alert-info ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.alert-info li {
+  margin-bottom: 5px;
+}
+
+.alert-dismissible {
+  position: relative;
+  padding-right: 3rem;
+}
+
+.btn-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-primary);
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.btn-close::before {
+  content: "×";
+  display: block;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Прогресс-бар внутри тоста транскрипции (indeterminate) */
+@keyframes transcription-progress-slide {
+    0%   { transform: translateX(-100%); }
+    50%  { transform: translateX(60%); }
+    100% { transform: translateX(250%); }
+}
+
+.transcription-toast-progress {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.transcription-toast-bar {
+    height: 100%;
+    width: 40%;
+    background: var(--accent-yellow, #d99b00);
+    border-radius: 2px;
+    animation: transcription-progress-slide 1.5s ease-in-out infinite;
+}

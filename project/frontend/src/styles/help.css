@@ -1,0 +1,314 @@
+/* Весь блок справки — фон в цвет активной темы (единый вид с остальным приложением) */
+.help-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--bg-primary);
+}
+
+/* Осень: --bg-primary (#fff8f0) слишком светлый, используем тёплый фон */
+[data-theme="autumn"] .help-page,
+[data-theme="autumn"] .help-tab-content {
+  background: var(--bg-secondary);
+}
+[data-theme="autumn"] .help-tab-btn.active {
+  background: var(--bg-tertiary);
+}
+
+/* Весна: --bg-primary (#f0faf0) слишком светлый, используем зелёноватый фон */
+[data-theme="spring"] .help-page,
+[data-theme="spring"] .help-tab-content {
+  background: var(--bg-secondary);
+}
+[data-theme="spring"] .help-tab-btn.active {
+  background: var(--bg-tertiary);
+}
+
+/* Лето: --bg-primary (#fffce8) слишком светлый, используем песочный фон */
+[data-theme="summer"] .help-page,
+[data-theme="summer"] .help-tab-content {
+  background: var(--bg-secondary);
+}
+[data-theme="summer"] .help-tab-btn.active {
+  background: var(--bg-tertiary);
+}
+
+/* ── Навигация по вкладкам ── */
+.help-tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px 12px 0 0;
+  border-bottom: none;
+}
+
+.help-tab-btn {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-fast), color var(--duration-fast),
+    border-color var(--duration-fast);
+  white-space: nowrap;
+}
+
+.help-tab-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.help-tab-btn.active {
+  background: var(--bg-primary);
+  color: var(--accent-primary);
+  border-color: var(--border-color);
+  font-weight: 600;
+}
+
+/* ── Панели вкладок ── */
+.help-tab-content {
+  display: none;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 12px 12px;
+  animation: slideInUpShort var(--duration-fast) ease;
+}
+
+.help-tab-content.active {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .help-tabs-nav {
+    gap: 0;
+    padding: 0.25rem;
+    border-radius: 10px 10px 0 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .help-tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .help-tab-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.7rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  .help-tab-content {
+    padding: 0.875rem;
+  }
+}
+
+.help-page-intro-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.938rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.help-desc {
+  color: var(--text-primary);
+  font-size: 0.938rem;
+  line-height: 1.7;
+  margin: 0 0 1rem;
+}
+
+.help-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin: 1.25rem 0 0.625rem;
+}
+
+.help-subtitle:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.help-note {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+
+.help-note--warning {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  border-left-color: var(--accent-red);
+}
+
+.help-note--success {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  border-left-color: var(--accent-primary);
+}
+
+.help-formula {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.help-formula code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--accent-primary);
+}
+
+.help-list {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.help-page ol.help-list {
+  list-style: decimal;
+  list-style-position: outside;
+  padding-left: 1.5rem;
+}
+
+.help-list li {
+  font-size: 0.925rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.help-table-wrap {
+  overflow-x: auto;
+  margin: 0.25rem 0 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.help-table thead th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  padding: 0.625rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.help-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background var(--duration-fast) ease;
+}
+
+.help-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.help-table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.help-table tbody td {
+  padding: 0.625rem 1rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  vertical-align: top;
+}
+
+.help-table tbody td:first-child {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Двухколоночная сетка для групп метрик */
+.help-metrics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .help-metrics-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Мобильная таблица справки: прижать ячейки */
+@media (max-width: 480px) {
+  .help-table thead th,
+  .help-table tbody td {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8rem;
+  }
+
+  .help-table tbody td:first-child {
+    white-space: normal;
+  }
+
+  .help-desc {
+    font-size: 0.875rem;
+  }
+
+  .help-list li {
+    font-size: 0.875rem;
+  }
+
+  .help-formula code {
+    font-size: 0.8rem;
+  }
+}
+
+/* Статусы — в цвет активной темы */
+.status-active {
+  color: var(--accent-primary);
+}
+.status-cancelled {
+  color: var(--accent-red);
+}
+.status-offered {
+  color: var(--accent-primary);
+}
+.status-warning {
+  color: var(--accent-warning, #d29922);
+}
+
+@keyframes slideInUpShort {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,54 @@
+.page-intro,
+.panel,
+.card,
+.table-scroll,
+.callout {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 24px;
+  transition: background var(--duration-normal) ease,
+    border-color var(--duration-normal) ease,
+    box-shadow var(--duration-normal) ease;
+}
+
+.card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 8px;
+}
+
+.card-link:hover .card {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.card-link:hover .card a {
+    color: var(--link-color) !important;
+}
+
+.page-intro h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.page-intro p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Центральный контент — ограничение ширины */
+.content-container {
+    padding: 20px 25px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%; /* Растягиваем на всю ширину */
+    overflow-x: hidden; /* Предотвращаем растягивание из-за широких таблиц */
+}

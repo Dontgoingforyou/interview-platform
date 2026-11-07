@@ -1,0 +1,407 @@
+/* Страница «Менеджеры» (React) */
+
+.managers-metrics-hint {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.managers-metrics-hint .text-hot {
+  color: var(--accent-red);
+}
+
+.managers-metrics-hint .text-active {
+  color: var(--accent-primary);
+}
+
+.managers-metrics-hint .text-portfolio {
+  color: var(--accent-green);
+}
+
+/* 7 KPI в одну строку (глобальная metrics-grid даёт максимум 6 колонок) */
+.managers-list-page .managers-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin: 0 0 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.managers-list-page .managers-metrics-grid .metric-card {
+  min-width: 118px;
+}
+
+@media (max-width: 1100px) {
+  .managers-list-page .managers-metrics-grid {
+    grid-template-columns: repeat(7, minmax(118px, 1fr));
+  }
+
+  .managers-list-page .managers-metrics-grid .metric-card {
+    padding: 14px;
+  }
+
+  .managers-list-page .managers-metrics-grid .metric-card small {
+    font-size: 11px;
+  }
+
+  .managers-list-page .managers-metrics-grid .metric-card strong {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .managers-list-page .managers-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow-x: unset;
+  }
+
+  .managers-list-page .managers-metrics-grid .metric-card {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 400px) {
+  .managers-list-page .managers-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Сумма ширин = 100%; «Направления» забирает основной запас под table-layout: fixed.
+ * min-width таблицы — горизонтальный скролл при узком экране, без сжатия колонок. */
+.table-scroll .data-table.data-table--managers {
+  table-layout: fixed;
+  min-width: 960px;
+}
+
+.managers-list-page .table-scroll.table-scroll--plain .data-table.data-table--managers thead th:first-child,
+.managers-list-page .table-scroll.table-scroll--plain .data-table.data-table--managers tbody td:first-child {
+  white-space: nowrap;
+}
+
+.table-scroll .data-table.data-table--managers.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 14rem;
+}
+
+.data-table--managers .col-manager-name {
+  width: 11%;
+}
+.data-table--managers .col-manager-total {
+  width: 6%;
+}
+.data-table--managers .col-manager-hot {
+  width: 6%;
+}
+.data-table--managers .col-manager-active {
+  width: 6%;
+}
+.data-table--managers .col-manager-portfolio {
+  width: 6%;
+}
+.data-table--managers .col-manager-interviews {
+  width: 7%;
+}
+.data-table--managers .col-manager-successful {
+  width: 8%;
+}
+.data-table--managers .col-manager-directions {
+  width: 38%;
+}
+.data-table--managers .col-manager-last-date {
+  width: 12%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/*
+ * tables.css: translateX(4px) на tr:hover даёт горизонтальный скролл у .table-scroll.
+ */
+.table-scroll.table-scroll--plain .data-table.data-table--managers tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.managers-list-page .managers-table-desktop {
+  display: none;
+}
+
+.managers-list-page .managers-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 992px) {
+  .managers-list-page .managers-table-desktop {
+    display: block;
+  }
+
+  .managers-list-page .managers-mobile-cards {
+    display: none;
+  }
+}
+
+.managers-mobile-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .managers-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.managers-mobile-card__title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.managers-mobile-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.managers-mobile-card__stats dt {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.managers-mobile-card__stats dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.managers-mobile-card__full {
+  grid-column: 1 / -1;
+}
+
+.managers-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 0 4px;
+}
+
+.managers-chart-head .managers-chart-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.managers-chart-toggle {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--duration-fast, 0.15s),
+    color var(--duration-fast, 0.15s),
+    border-color var(--duration-fast, 0.15s);
+}
+
+.managers-chart-toggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.managers-chart-toggle svg {
+  display: block;
+  transition: transform 0.35s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.managers-chart-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.managers-chart-panel-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.managers-chart-panel-collapse.is-collapsed {
+  grid-template-rows: 0fr;
+}
+
+.managers-chart-panel-collapse__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .managers-chart-panel-collapse {
+    transition: none;
+  }
+
+  .managers-chart-toggle svg {
+    transition: none;
+  }
+}
+
+.managers-charts-row {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 992px) {
+  .managers-charts-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.managers-charts-row .managers-chart-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.managers-charts-row .managers-chart-panel-collapse {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Свёрнутая карточка не тянется по высоте соседа (align-items: stretch) и не забирает flex-рост */
+.managers-charts-row .managers-chart-block.is-chart-collapsed {
+  align-self: start;
+  width: 100%;
+}
+
+.managers-charts-row .managers-chart-block.is-chart-collapsed .managers-chart-panel-collapse {
+  flex: 0 0 auto;
+}
+
+.managers-charts-row .managers-chart-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.managers-charts-row .managers-chart-block.is-chart-collapsed .managers-chart-wrap {
+  flex: 0 0 auto;
+}
+
+.managers-chart-block.is-chart-collapsed .managers-chart-head {
+  margin-bottom: 0;
+}
+
+.managers-chart-block {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  padding: 12px 12px 4px;
+  background: var(--bg-secondary);
+}
+
+.managers-chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  padding: 0 4px;
+}
+
+.managers-chart-wrap {
+  width: 100%;
+  min-height: 280px;
+}
+
+@media (max-width: 600px) {
+  .managers-chart-wrap {
+    min-height: 220px;
+  }
+}
+
+.managers-chart-empty {
+  margin: 0;
+  padding: 12px;
+}
+
+.managers-list-page .recharts-cartesian-grid line {
+  stroke: var(--border-color);
+  opacity: 0.65;
+}
+
+/* Без внешней «коробки»: только заголовок и карточки наблюдений */
+.managers-observations-section {
+  margin-top: 1.5rem;
+}
+
+.managers-observations-section h2 {
+  margin: 0 0 15px;
+  padding-bottom: 5px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent-primary);
+}
+
+.managers-observations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.managers-observations-list .managers-observation:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 12px;
+  padding-bottom: 14px;
+}
+
+.managers-observation {
+  margin: 0;
+  padding: 10px 0 10px 14px;
+  border: none;
+  border-left: 3px solid var(--accent-primary);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.managers-observations-empty {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.managers-table-section h2 {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 768px) {
+  .managers-observations-section {
+    margin-top: 1.25rem;
+  }
+
+  .managers-observations-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .managers-observation {
+    padding: 8px 0 8px 12px;
+    font-size: 0.9rem;
+  }
+}

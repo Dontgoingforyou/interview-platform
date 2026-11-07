@@ -1,0 +1,6031 @@
+openapi: 3.0.3
+info:
+  title: Платформа собеседований API
+  version: 1.0.0
+  description: |-
+    API для управления студентами, собеседованиями, офферами и долгами.
+
+    **Аутентификация:** сессия локального входа.
+    Демо-учётки: admin / manager / student.
+paths:
+  /mcp:
+    post:
+      operationId: http_mcp
+      summary: HTTP MCP
+      description: |-
+        JSON-RPC 2.0 (`initialize`, `tools/list`, `tools/call`).
+        Клиент передаёт сессию локального входа.
+
+        Набор тулов: собеседования (list/get/create/update, база, транскрипции),
+        студенты, компании, направления, «Грустят», сотрудники, менеджеры,
+        разработчики, база знаний, семантический поиск.
+        Офферы, долги, KPI и отчёт разработчиков — только администратор.
+        Ментор видит базу собеседований и транскрипции.
+        Права тулов совпадают с REST API.
+        Матрица: `docs/product/mcp-roles-pages.html`.
+      tags:
+      - MCP
+      security:
+      - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: JSON-RPC result или error
+        '401':
+          description: Нет сессии
+        '403':
+          description: Роль без доступа к MCP
+  /api/analytics/debts/:
+    get:
+      operationId: analytics_debts_retrieve
+      description: |-
+        Аналитика долгов — тот же payload, что у compute_debt_analytics().
+        Ключ кэша совместим с legacy debt_analytics_api при пустых GET-параметрах.
+      summary: Аналитика по долгам
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/developers/:
+    get:
+      operationId: analytics_developers_retrieve
+      description: Аналитика по разработчикам (метрики, график по месяцам, подсказки).
+      summary: Аналитика по разработчикам
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/directions/:
+    get:
+      operationId: analytics_directions_retrieve
+      description: |-
+        Агрегаты по собеседованиям по направлениям.
+
+        **Параметры:** `date_filter` (YYYY-MM-DD), `direction` (id), `min_conversion` (%).
+      summary: Аналитика по направлениям
+      tags:
+      - Направления
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/interviews/:
+    get:
+      operationId: analytics_interviews_retrieve
+      description: |-
+        Аналитика собеседований (метрики за 30 дней и за всё время).
+
+        Ключ кэша совпадает с legacy interview_analytics_api для тех же GET-параметров.
+      summary: Аналитика по собеседованиям
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/interviews/type-breakdown/:
+    get:
+      operationId: analytics_interviews_type_breakdown_retrieve
+      description: Статистика по типам для текущих фильтров списка собеседований.
+      summary: Разбивка собеседований по типам
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/managers/:
+    get:
+      operationId: analytics_managers_retrieve
+      description: KPI по менеджерам (те же данные, что у compute_managers_analytics).
+      summary: Аналитика команды менеджеров
+      tags:
+      - Менеджеры
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/managers/observations/:
+    get:
+      operationId: analytics_managers_observations_retrieve
+      description: Агрегаты для текстовых инсайтов (список по менеджерам, лидеры и
+        т.д.).
+      summary: Наблюдения по менеджерам
+      tags:
+      - Менеджеры
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/managers/table/:
+    get:
+      operationId: analytics_managers_table_retrieve
+      description: 'Строки таблицы «Менеджеры»: кандидаты, интервью, направления,
+        даты.'
+      summary: Таблица менеджеров дашборда
+      tags:
+      - Менеджеры
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/offers/:
+    get:
+      operationId: analytics_offers_retrieve
+      description: |-
+        Аналитика офферов для SPA.
+        Ключ кэша совместим с legacy offer_analytics_api при пустых GET-параметрах.
+      summary: Аналитика по офферам
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/sad-intern/:
+    get:
+      operationId: analytics_sad_intern_retrieve
+      description: Метрики списка ожидания (грустящие студенты).
+      summary: Аналитика по «грустящим» студентам
+      tags:
+      - Аналитика
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      summary: Локальный вход
+      description: Логин и пароль демо-учётки. Успешный ответ ставит сессионную куку.
+      tags:
+      - Авторизация
+      security:
+      - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Пользователь и сессия
+        '401':
+          description: Неверные учётные данные
+  /api/companies/:
+    get:
+      operationId: companies_list
+      description: |-
+        Пагинированный список.
+
+        **Фильтры:** `q`, `is_bigtech` (true/false), `bigtech=1` (только бигтех).
+        **Сортировка:** `sort` — interviews, -interviews, name, -name (по умолчанию interviews).
+      summary: Список компаний
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Компании
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCompanyList'
+          description: ''
+    post:
+      operationId: companies_create
+      description: 'CRUD компаний: чтение — менеджеры/HR/outstaff; запись — менеджеры
+        и админ; удаление — только админ.'
+      summary: Создать компанию
+      tags:
+      - Компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: ''
+  /api/companies/{id}/:
+    get:
+      operationId: companies_retrieve
+      description: 'CRUD компаний: чтение — менеджеры/HR/outstaff; запись — менеджеры
+        и админ; удаление — только админ.'
+      summary: Детали компании
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Компания.
+        required: true
+      tags:
+      - Компании
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: ''
+    put:
+      operationId: companies_update
+      description: 'CRUD компаний: чтение — менеджеры/HR/outstaff; запись — менеджеры
+        и админ; удаление — только админ.'
+      summary: Изменить компанию
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Компания.
+        required: true
+      tags:
+      - Компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: ''
+    patch:
+      operationId: companies_partial_update
+      description: 'CRUD компаний: чтение — менеджеры/HR/outstaff; запись — менеджеры
+        и админ; удаление — только админ.'
+      summary: Частично изменить компанию
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Компания.
+        required: true
+      tags:
+      - Компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCompanyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCompanyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCompanyRequest'
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: ''
+    delete:
+      operationId: companies_destroy
+      description: Только администратор. Нельзя удалить компанию со связанными собеседованиями.
+      summary: Удалить компанию
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Компания.
+        required: true
+      tags:
+      - Компании
+      security:
+      - SessionAuth: []
+      responses:
+        '204':
+          description: Удалено
+        '409':
+          description: Конфликт
+  /api/companies/merge/:
+    post:
+      operationId: companies_merge_create
+      description: Перенос собеседований на главную, слияние псевдонимов, удаление
+        дублей.
+      summary: Объединить компании
+      tags:
+      - Компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyMergeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompanyMergeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompanyMergeRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: Успех
+        '400':
+          description: Ошибка валидации
+  /api/companies/stats/:
+    get:
+      operationId: companies_stats_retrieve
+      description: 'Сводные числа: всего, бигтех, с/без собеседований.'
+      summary: Статистика по компаниям
+      tags:
+      - Компании
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: OK
+  /api/debts/:
+    get:
+      operationId: debts_list
+      description: |-
+        Список долгов студентов с пагинацией (page, page_size).
+
+        Менеджер видит долги только своих студентов.
+
+        **Фильтры:** `q` или `search`, `direction`, `payment_status`, `intern_id`, `not_paid_filter=3months`, `act_date_filter`, `act_date_from`, `act_date_to`; сортировка `order_by`, `order_dir`.
+      summary: Список долгов
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Долги
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDebtListList'
+          description: ''
+    post:
+      operationId: debts_create
+      description: Создаёт новую запись о долге студента. Только для администраторов.
+      summary: Создать долг
+      tags:
+      - Долги
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtCreateUpdate'
+          description: ''
+  /api/debts/{id}/:
+    get:
+      operationId: debts_retrieve
+      description: Возвращает полную информацию о долге, включая историю платежей.
+      summary: Детали долга
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Долги
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtDetail'
+          description: ''
+    put:
+      operationId: debts_update
+      description: Полное обновление записи о долге. Только для администраторов.
+      summary: Обновить долг (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Долги
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DebtCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtCreateUpdate'
+          description: ''
+    patch:
+      operationId: debts_partial_update
+      description: Частичное обновление записи о долге. Только для администраторов.
+      summary: Обновить долг
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Долги
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDebtCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDebtCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDebtCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtCreateUpdate'
+          description: ''
+    delete:
+      operationId: debts_destroy
+      description: Удаление записи о долге. Только для администраторов.
+      summary: Удалить долг
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Долги
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/debts/{id}/add-payment/:
+    post:
+      operationId: debts_add_payment_create
+      description: Добавляет запись о платеже в историю долга. Только для администраторов.
+      summary: Добавить платёж
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Долги
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentHistoryCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentHistoryCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentHistoryCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtList'
+          description: ''
+  /api/debts/by-month/:
+    get:
+      operationId: debts_by_month_retrieve
+      description: 'Отчёт по платежам за период. Обязательны `month_from`, `year_from`,
+        `month_to`, `year_to`. Опционально `payment_status_filter`: paying | not_paying
+        | paid_fully.'
+      summary: Долги по месяцам
+      tags:
+      - Долги
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtByMonthRow'
+          description: ''
+  /api/debts/import/:
+    post:
+      operationId: debts_import_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Только администратор.
+      summary: Импорт долгов из файла
+      tags:
+      - Долги
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/developers/:
+    get:
+      operationId: developers_list
+      description: |-
+        Пагинированный список специалистов с агрегированной статистикой.
+
+        **Фильтры:** `direction_id` или `direction`, `q` (ФИО).
+        **Сортировка:** `order_by`, `order_dir` (asc|desc).
+      summary: Статистика по разработчикам
+      parameters:
+      - in: query
+        name: direction
+        schema:
+          type: integer
+        description: Синоним direction_id
+      - in: query
+        name: direction_id
+        schema:
+          type: integer
+        description: Фильтр по направлению
+      - in: query
+        name: order_by
+        schema:
+          type: string
+        description: Поле сортировки
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+        description: asc или desc
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Номер страницы
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Поиск по ФИО
+      tags:
+      - Разработчики
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeveloperStatList'
+          description: ''
+  /api/directions/:
+    get:
+      operationId: directions_list
+      description: |-
+        Возвращает список направлений.
+
+        **Фильтр:** `q` — поиск по названию.
+      summary: Список направлений
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Направления
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDirectionList'
+          description: ''
+    post:
+      operationId: directions_create
+      description: Доступно только администраторам.
+      summary: Создать направление
+      tags:
+      - Направления
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DirectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DirectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Direction'
+          description: ''
+  /api/directions/{id}/:
+    get:
+      operationId: directions_retrieve
+      description: Возвращает информацию о направлении по id.
+      summary: Детали направления
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Направление.
+        required: true
+      tags:
+      - Направления
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Direction'
+          description: ''
+  /api/docs/:
+    get:
+      operationId: docs_retrieve
+      description: |-
+        Swagger UI для менеджеров и администраторов.
+
+        Студенты портала получают 403.
+        Незалогиненные пользователи перенаправляются на страницу локального входа.
+
+        authentication_classes содержат DRF-слой аутентификации (defense-in-depth).
+        permission_classes = [] — намеренно: кастомный get() реализует редирект на логин
+        вместо стандартного DRF 403, что даёт лучший UX для браузерных пользователей.
+      summary: Интерактивная документация (Swagger UI)
+      tags:
+      - Документация API
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/employees/admin/developers/:
+    get:
+      operationId: employees_admin_developers_retrieve
+      description: |-
+        Возвращает список менеджеров с количеством активных студентов и списком студентов.
+
+        **Параметр:** show_hidden=1 — включить неактивных менеджеров.
+      summary: Количество разработчиков по менеджерам
+      parameters:
+      - in: query
+        name: show_hidden
+        schema:
+          type: boolean
+          default: false
+        description: Включить неактивных менеджеров
+      tags:
+      - Сотрудники
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Успешно
+          description: ''
+  /api/employees/admin/kpi/:
+    get:
+      operationId: employees_admin_kpi_retrieve
+      description: |-
+        Возвращает менеджеров, у которых KPI (среднее число собеседований на активного студента в неделю) не ниже заданного порога за выбранный период.
+
+        **Параметры:** date_from, date_to (YYYY-MM-DD), min_kpi (по умолчанию 3).
+      summary: Отчёт KPI за период
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Начало периода (YYYY-MM-DD)
+        required: true
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Конец периода (YYYY-MM-DD)
+        required: true
+      - in: query
+        name: min_kpi
+        schema:
+          type: number
+          default: 3
+        description: Минимальный порог KPI
+      tags:
+      - Сотрудники
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Успешно
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Некорректные параметры или период
+          description: ''
+  /api/employees/managers/:
+    get:
+      operationId: employees_managers_retrieve
+      description: Список активных менеджеров, у которых есть хотя бы одна группа
+        из KEYCLOAK_MANAGER_GROUPS. Аналог страницы списка сотрудников в Django.
+      summary: Менеджеры для раздела «Сотрудники»
+      tags:
+      - Менеджеры
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/employees/managers/{email}/board/:
+    get:
+      operationId: employees_managers_board_retrieve
+      description: Возвращает сериализованный контекст ManagerDetailService для отображения
+        в React. Email в пути — один сегмент (рекомендуется URL-encoding, например
+        user%40domain.com).
+      summary: Доска менеджера (студенты и недели)
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+        required: true
+      tags:
+      - Менеджеры
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/employees/weekly-statuses/:
+    get:
+      operationId: employees_weekly_statuses_list
+      description: |-
+        Возвращает список недельных статусов студентов.
+
+        Менеджер видит только статусы своих студентов.
+
+        **Фильтры:**
+        - `intern_id` — ID студента
+        - `week_start` — начало недели (YYYY-MM-DD)
+        - `absence_status` — статус отсутствия (болеет / отпуск / уехал / другое)
+      summary: Список недельных статусов
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Сотрудники
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInternWeeklyStatusList'
+          description: ''
+    post:
+      operationId: employees_weekly_statuses_create
+      description: Создаёт запись о недельном статусе студента.
+      summary: Создать недельный статус
+      tags:
+      - Сотрудники
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternWeeklyStatusCreateUpdate'
+          description: ''
+  /api/employees/weekly-statuses/{id}/:
+    get:
+      operationId: employees_weekly_statuses_retrieve
+      description: Возвращает информацию о недельном статусе студента по ID.
+      summary: Детали недельного статуса
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Сотрудники
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternWeeklyStatus'
+          description: ''
+    put:
+      operationId: employees_weekly_statuses_update
+      description: Полное обновление недельного статуса студента.
+      summary: Обновить недельный статус (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Сотрудники
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InternWeeklyStatusCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternWeeklyStatusCreateUpdate'
+          description: ''
+    patch:
+      operationId: employees_weekly_statuses_partial_update
+      description: Частичное обновление недельного статуса студента.
+      summary: Обновить недельный статус
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Сотрудники
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInternWeeklyStatusCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedInternWeeklyStatusCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedInternWeeklyStatusCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternWeeklyStatusCreateUpdate'
+          description: ''
+    delete:
+      operationId: employees_weekly_statuses_destroy
+      description: Удаляет запись о недельном статусе. Только для администраторов.
+      summary: Удалить недельный статус
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Сотрудники
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/import/status/{task_id}/:
+    get:
+      operationId: import_status_retrieve
+      description: Прогресс асинхронного импорта по task_id.
+      summary: Статус задачи импорта
+      parameters:
+      - in: path
+        name: task_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns/:
+    get:
+      operationId: interns_list
+      description: |-
+        Менеджер видит только своих студентов. Администратор, HR и outstaff — всех.
+
+        Фильтры: `q`, `status`, `rag`, `manager` / `manager_email`, `direction` / `direction_id`, `group`, `order_by`, `order_dir`.
+      summary: Список студентов
+      parameters:
+      - in: query
+        name: direction
+        schema:
+          type: integer
+        description: Алиас direction_id
+      - in: query
+        name: direction_id
+        schema:
+          type: integer
+        description: ID направления
+      - in: query
+        name: group
+        schema:
+          type: string
+        description: Группа (частичное совпадение)
+      - in: query
+        name: manager
+        schema:
+          type: string
+        description: Email менеджера
+      - in: query
+        name: manager_email
+        schema:
+          type: string
+        description: Алиас manager
+      - in: query
+        name: order_by
+        schema:
+          type: string
+        description: Поле сортировки
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+        description: asc или desc
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: 'Поиск: ФИО, email, группа, HR'
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: 'Статус: активный, ушел, оффер'
+      tags:
+      - Студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInternListList'
+          description: ''
+    post:
+      operationId: interns_create
+      description: Создаёт нового студента. Администратор задаёт любого менеджера;
+        менеджер с ролью записи — студент всегда назначается на email из SSO (поле
+        в теле игнорируется).
+      summary: Создать студента
+      tags:
+      - Студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternCreateUpdate'
+          description: ''
+  /api/interns-portal/interviews/:
+    get:
+      operationId: interns_portal_interviews_retrieve
+      description: 'GET: пагинированный список собеседований текущего студента.'
+      summary: Список собеседований студента (портал)
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+      tags:
+      - Портал студента
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns-portal/interviews/{interview_id}/upload/:
+    post:
+      operationId: interns_portal_interviews_upload_create
+      description: 'POST multipart: загрузка записи собеседования в S3 (Celery).'
+      summary: Загрузить видеозапись собеседования
+      parameters:
+      - in: path
+        name: interview_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Портал студента
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns-portal/upload-tasks/{task_id}/:
+    get:
+      operationId: interns_portal_upload_tasks_retrieve
+      description: 'GET: прогресс Celery только для задачи, привязанной к собеседованию
+        студента.'
+      summary: Статус задачи загрузки видео (портал)
+      parameters:
+      - in: path
+        name: task_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Портал студента
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns/{id}/:
+    get:
+      operationId: interns_retrieve
+      description: Возвращает полную информацию о студенте по ID.
+      summary: Детали студента
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternDetail'
+          description: ''
+    put:
+      operationId: interns_update
+      description: Полное обновление студента. Только для администраторов.
+      summary: Обновить студента (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InternCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternCreateUpdate'
+          description: ''
+    patch:
+      operationId: interns_partial_update
+      description: Обновляет указанные поля студента. Только для администраторов.
+      summary: Частичное обновление студента
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedInternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedInternCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternCreateUpdate'
+          description: ''
+    delete:
+      operationId: interns_destroy
+      description: Удаление студента. Только администратор.
+      summary: Удалить студента
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/interns/{id}/manual-status/:
+    patch:
+      operationId: interns_manual_status_partial_update
+      description: Обновляет поле manual_status. Доступно менеджерам и администраторам
+        (аналог legacy POST /employees/api/update-status/).
+      summary: Смена статуса студента (раздел «Сотрудники»)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                manual_status:
+                  type: string
+              required:
+              - manual_status
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternList'
+          description: ''
+  /api/interns/import/:
+    post:
+      operationId: interns_import_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Только администратор.
+      summary: Импорт студентов из файла
+      tags:
+      - Студенты
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns/import-dates/:
+    post:
+      operationId: interns_import_dates_create
+      description: Обновление поля real_interview_date по файлу с колонками «ФИ» и
+        «Дата».
+      summary: Импорт дат реальных собеседований
+      tags:
+      - Студенты
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interns/import-sync/:
+    post:
+      operationId: interns_import_sync_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Дополняет пустые поля,
+        не затирает заполненные. Только администратор.
+      summary: Синхронизация студентов из файла
+      tags:
+      - Студенты
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/interviews/:
+    get:
+      operationId: interviews_list
+      description: |-
+        Возвращает список собеседований.
+
+        Менеджер видит только свои собеседования. HR и outstaff — все.
+
+        **Фильтры:**
+        - `no_link` — только без ссылки (true/false)
+        - `has_video` — только с загруженной записью (true) или без (false)
+        - `date_from` — начало периода (YYYY-MM-DD)
+        - `date_to` — конец периода (YYYY-MM-DD)
+        - `intern_id` — ID студента
+        - `interview_type` — тип: screening / tech / hr / final / mock / test / tech_questionnaire / cancelled
+        - `direction_id` — ID направления
+      summary: Список собеседований
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Дата от (YYYY-MM-DD)
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Дата до (YYYY-MM-DD)
+      - in: query
+        name: direction_id
+        schema:
+          type: integer
+        description: ID направления
+      - in: query
+        name: has_video
+        schema:
+          type: boolean
+        description: true — только с непустым video_link; false — без загруженной
+          записи
+      - in: query
+        name: intern_id
+        schema:
+          type: integer
+        description: ID студента
+      - in: query
+        name: interview_type
+        schema:
+          type: string
+        description: Тип собеседования
+      - in: query
+        name: no_link
+        schema:
+          type: boolean
+        description: Только без ссылки
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Интервью
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInterviewFullList'
+          description: ''
+    post:
+      operationId: interviews_create
+      description: Создаёт новое собеседование. Только для администраторов.
+      summary: Создать собеседование
+      tags:
+      - Интервью
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewCreateUpdate'
+          description: ''
+  /api/interviews-database/:
+    get:
+      operationId: interviews_database_list
+      description: Собеседования с записью созвона (непустой `link`), загруженным
+        видео (`video_link`) или активной загрузкой (`upload_task_id`). Все менеджеры
+        видят все записи (без ограничения по своему email); доступ ограничен ролью
+        (IsManagerOrAdmin).
+      summary: Список базы собеседований
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: integer
+        description: ID компании
+      - in: query
+        name: direction
+        schema:
+          type: integer
+        description: ID направления
+      - in: query
+        name: direction_id
+        schema:
+          type: integer
+        description: Алиас direction
+      - in: query
+        name: interview_type
+        schema:
+          type: string
+        description: Тип собеседования
+      - in: query
+        name: manager
+        schema:
+          type: string
+        description: Email менеджера
+      - in: query
+        name: order_by
+        schema:
+          type: string
+        description: Поле сортировки (id, full_name, company_name, …)
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+        description: asc или desc
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Номер страницы
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: Размер страницы (по умолчанию 20)
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: 'Поиск: ФИО, HR, подстрока в ссылках записи'
+      - in: query
+        name: transcription
+        schema:
+          type: string
+        description: 'Фильтр по транскрипции: completed — готовый текст; failed —
+          ошибка; in_progress — ожидает или в процессе'
+      tags:
+      - База собеседований
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInterviewFullList'
+          description: ''
+  /api/interviews/{id}/:
+    get:
+      operationId: interviews_retrieve
+      description: Возвращает полную информацию о собеседовании.
+      summary: Детали собеседования
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewFull'
+          description: ''
+    put:
+      operationId: interviews_update
+      description: Полное обновление собеседования. Только для администраторов.
+      summary: Обновить собеседование (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InterviewCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewCreateUpdate'
+          description: ''
+    patch:
+      operationId: interviews_partial_update
+      description: Частичное обновление собеседования. Только для администраторов.
+      summary: Обновить собеседование
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInterviewCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedInterviewCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedInterviewCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewCreateUpdate'
+          description: ''
+    delete:
+      operationId: interviews_destroy
+      description: Удаление записи. Только администратор.
+      summary: Удалить собеседование
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                description: Удалено
+          description: ''
+  /api/interviews/{id}/transcribe/:
+    post:
+      operationId: interviews_transcribe_create
+      description: Ставит задачу транскрипции в очередь. Администратор или ментор.
+      summary: Запустить транскрипцию видео
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewFullRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InterviewFullRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InterviewFullRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Очередь / уже выполняется
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Нет URL медиа
+          description: ''
+  /api/interviews/{id}/transcription-status/:
+    get:
+      operationId: interviews_transcription_status_retrieve
+      description: Поллинг статуса транскрипции. Менеджер — только по своим собеседованиям;
+        администратор, HR, outstaff и mentor — по любому id.
+      summary: Статус транскрипции
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Статус и сообщение об ошибке (если есть)
+          description: ''
+  /api/interviews/{id}/transcription-text/:
+    get:
+      operationId: interviews_transcription_text_retrieve
+      description: Готовый текст при статусе completed. Менеджер — только свои собеседования;
+        администратор, HR, outstaff и mentor — любой id.
+      summary: Текст транскрипции
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Интервью
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Текст
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                description: Не готово
+          description: ''
+  /api/interviews/import/:
+    post:
+      operationId: interviews_import_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Только администратор.
+      summary: Импорт собеседований из файла
+      tags:
+      - Интервью
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/knowledge-base/search/:
+    get:
+      operationId: knowledge_base_search_list
+      description: Поиск по заголовку и содержимому статей. Пустой `q` — первые результаты
+        в пределе лимита.
+      summary: Поиск по базе знаний
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KBSearchResult'
+          description: ''
+  /api/knowledge-base/sections/:
+    get:
+      operationId: knowledge_base_sections_list
+      description: Список разделов и создание (только админ).
+      summary: Список разделов базы знаний
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KBSectionRead'
+          description: ''
+    post:
+      operationId: knowledge_base_sections_create
+      description: Список разделов и создание (только админ).
+      summary: Создать раздел
+      tags:
+      - База знаний
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KBSectionCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KBSectionCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KBSectionCreateRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '201':
+          description: Создано
+        '400':
+          description: Ошибка валидации
+  /api/knowledge-base/sections/{section_id}/:
+    get:
+      operationId: knowledge_base_sections_retrieve
+      description: Детали раздела, обновление и удаление.
+      summary: Детали раздела
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KBSectionRead'
+          description: ''
+        '404':
+          description: Не найден
+    patch:
+      operationId: knowledge_base_sections_partial_update
+      description: Детали раздела, обновление и удаление.
+      summary: Обновить раздел
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKBSectionUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedKBSectionUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedKBSectionUpdateRequest'
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: knowledge_base_sections_destroy
+      description: Детали раздела, обновление и удаление.
+      summary: Удалить раздел
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '204':
+          description: Удалено
+  /api/knowledge-base/sections/{section_id}/articles/:
+    get:
+      operationId: knowledge_base_sections_articles_list
+      description: Список статей раздела и создание статьи.
+      summary: Список статей раздела
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KBArticleListItem'
+          description: ''
+    post:
+      operationId: knowledge_base_sections_articles_create
+      description: Список статей раздела и создание статьи.
+      summary: Создать статью в разделе
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KBArticleCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KBArticleCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KBArticleCreateRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '201':
+          description: Создано
+  /api/knowledge-base/sections/{section_id}/articles/{filename}/:
+    get:
+      operationId: knowledge_base_sections_articles_retrieve
+      description: Чтение, обновление и удаление статьи.
+      summary: Детали статьи
+      parameters:
+      - in: path
+        name: filename
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KBArticleDetail'
+          description: ''
+        '404':
+          description: Не найдена
+    patch:
+      operationId: knowledge_base_sections_articles_partial_update
+      description: Чтение, обновление и удаление статьи.
+      summary: Обновить статью
+      parameters:
+      - in: path
+        name: filename
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKBArticleUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedKBArticleUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedKBArticleUpdateRequest'
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KBArticleDetail'
+          description: ''
+    delete:
+      operationId: knowledge_base_sections_articles_destroy
+      description: Чтение, обновление и удаление статьи.
+      summary: Удалить статью
+      parameters:
+      - in: path
+        name: filename
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - База знаний
+      security:
+      - SessionAuth: []
+      responses:
+        '204':
+          description: Удалено
+  /api/managers/:
+    get:
+      operationId: managers_list
+      description: |-
+        Возвращает список всех менеджеров системы. Только для администраторов.
+
+        **Фильтры:**
+        - `is_active` — активен ли менеджер (true/false)
+        - `group` — фильтр по группе локальной роли
+      summary: Список менеджеров
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Менеджеры
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedManagerListList'
+          description: ''
+  /api/managers/{email}/:
+    get:
+      operationId: managers_retrieve
+      description: Возвращает информацию о менеджере по email. Только для администраторов.
+      summary: Детали менеджера
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+          pattern: ^[^/]+$
+        required: true
+      tags:
+      - Менеджеры
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerList'
+          description: ''
+  /api/managers/{email}/update/:
+    patch:
+      operationId: managers_update_partial_update
+      description: Обновляет данные менеджера. Только для администраторов.
+      summary: Обновить менеджера
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+          pattern: ^[^/]+$
+        required: true
+      tags:
+      - Менеджеры
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerList'
+          description: ''
+  /api/managers/for-filters/:
+    get:
+      operationId: managers_for_filters_retrieve
+      description: Активные менеджеры (email + ФИО) для фильтра на странице собеседований
+        и др.
+      summary: Менеджеры для фильтров списков
+      tags:
+      - Менеджеры
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerList'
+          description: ''
+  /api/managers/me/:
+    get:
+      operationId: managers_me_retrieve
+      description: Возвращает профиль текущего аутентифицированного пользователя.
+      summary: Профиль текущего пользователя
+      tags:
+      - Менеджеры
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerList'
+          description: ''
+  /api/observations/directions/:
+    get:
+      operationId: observations_directions_retrieve
+      description: Данные для формирования блока наблюдений на странице метрик.
+      summary: Наблюдения по направлениям
+      tags:
+      - Направления
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/offers/:
+    get:
+      operationId: offers_list
+      description: |-
+        Возвращает список офферов студентов.
+
+        Менеджер видит офферы только своих студентов.
+
+        **Фильтры:**
+        - `search` / `q` — поиск по ФИО студента и названию компании
+        - `intern_id` — ID студента
+        - `direction_id` — ID направления
+        - `year` — год оффера
+        - `month` — месяц оффера (1–12)
+        - `order_by`, `order_dir` — сортировка (asc/desc)
+
+        Пагинация: `page`, `page_size` (до 100).
+      summary: Список офферов
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Офферы
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOfferListList'
+          description: ''
+    post:
+      operationId: offers_create
+      description: Создаёт новый оффер для студента. Только для администраторов.
+      summary: Создать оффер
+      tags:
+      - Офферы
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferCreateUpdate'
+          description: ''
+  /api/offers/{id}/:
+    get:
+      operationId: offers_retrieve
+      description: Возвращает полную информацию об оффере по ID.
+      summary: Детали оффера
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Офферы
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferDetail'
+          description: ''
+    put:
+      operationId: offers_update
+      description: Полное обновление оффера. Только для администраторов.
+      summary: Обновить оффер (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Офферы
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OfferCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferCreateUpdate'
+          description: ''
+    patch:
+      operationId: offers_partial_update
+      description: Частичное обновление оффера. Только для администраторов.
+      summary: Обновить оффер (PATCH)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Офферы
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOfferCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOfferCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOfferCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferCreateUpdate'
+          description: ''
+    delete:
+      operationId: offers_destroy
+      description: Удаляет оффер по ID. Доступно только администраторам (как удаление
+        в классическом интерфейсе).
+      summary: Удалить оффер
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Офферы
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/offers/import/:
+    post:
+      operationId: offers_import_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Только администратор.
+      summary: Импорт офферов из файла
+      tags:
+      - Офферы
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/offers/month-groups/:
+    get:
+      operationId: offers_month_groups_retrieve
+      description: |-
+        Уникальные пары (год, месяц) с количеством офферов, по убыванию периода.
+
+        Те же фильтры, что у списка (`search`/`q`, `intern_id`, `direction_id`, `year`, `month`).
+        Пагинация окон: `offset` (по умолчанию 0), `limit` (по умолчанию 3, макс. 50).
+      summary: Группы офферов по месяцам
+      parameters:
+      - in: query
+        name: direction_id
+        schema:
+          type: integer
+      - in: query
+        name: intern_id
+        schema:
+          type: integer
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: month
+        schema:
+          type: integer
+      - in: query
+        name: offset
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - Офферы
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        year:
+                          type: integer
+                        month:
+                          type: integer
+                        total_count:
+                          type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+                  has_more:
+                    type: boolean
+                  next_offset:
+                    type: integer
+                    nullable: true
+          description: ''
+  /api/redoc/:
+    get:
+      operationId: redoc_retrieve
+      description: |-
+        ReDoc для менеджеров и администраторов.
+
+        Доступ только для менеджеров и администраторов. Студенты получают 403.
+        Логика как у ProtectedSwaggerView: нет SSO — редирект на логин; не менеджер/админ — 403.
+
+        authentication_classes — DRF-слой (defense-in-depth).
+        permission_classes = [] — намеренно: редирект в кастомном get().
+      summary: Документация ReDoc
+      tags:
+      - Документация API
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/sad-interns/:
+    get:
+      operationId: sad_interns_list
+      description: |-
+        Плоский список как на сайте: по умолчанию без `on_project`, без студентов со статусами «Оффер»/«Ушёл». Параметр `exclude_on_project=false` (или `0`, `no`) расширяет выдачу записями со статусом `on_project` (по-прежнему без студентов со статусами оффер/ушёл).
+
+        Менеджер — только свои; HR/outstaff/admin — все (в рамках роли).
+
+        **Фильтры:** `status`, `manager_email` (только admin), `exclude_on_project`.
+      summary: Список «грустящих» студентов
+      parameters:
+      - in: query
+        name: exclude_on_project
+        schema:
+          type: boolean
+        description: По умолчанию скрыть on_project; false/0/no — показать
+      - in: query
+        name: manager_email
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - Грустящие студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSadInternListList'
+          description: ''
+    post:
+      operationId: sad_interns_create
+      description: Менеджер или администратор. Логика назначения менеджера как в веб-форме.
+      summary: Добавить студента в список ожидания
+      tags:
+      - Грустящие студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternCreateUpdate'
+          description: ''
+  /api/sad-interns/{id}/:
+    get:
+      operationId: sad_interns_retrieve
+      description: CRUD «грустят», группировка по направлениям, блок on_project.
+      summary: Детали записи «грустящего» студента
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Грустящие студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternDetail'
+          description: ''
+    put:
+      operationId: sad_interns_update
+      description: Менеджер может менять только записи со своим `manager_email`.
+      summary: Обновить запись (PUT)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Грустящие студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SadInternCreateUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternCreateUpdate'
+          description: ''
+    patch:
+      operationId: sad_interns_partial_update
+      description: Менеджер может менять только записи со своим `manager_email`.
+      summary: Частично обновить запись
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Грустящие студенты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSadInternCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSadInternCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSadInternCreateUpdateRequest'
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternCreateUpdate'
+          description: ''
+    delete:
+      operationId: sad_interns_destroy
+      description: Только администратор.
+      summary: Удалить запись
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Грустящие студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/sad-interns/grouped/:
+    get:
+      operationId: sad_interns_grouped_retrieve
+      description: 'Основной список ожидания (без on_project, с exclude_left_interns).
+        Параметры: `directions_offset`, `page_<direction_id|none>`, `q`, `status`,
+        `direction`, `order_by`, `order_dir`, `manager_email` (только admin).'
+      summary: Список с группировкой по направлениям
+      parameters:
+      - in: query
+        name: direction
+        schema:
+          type: integer
+      - in: query
+        name: directions_offset
+        schema:
+          type: integer
+      - in: query
+        name: manager_email
+        schema:
+          type: string
+      - in: query
+        name: order_by
+        schema:
+          type: string
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - Грустящие студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternList'
+          description: ''
+  /api/sad-interns/import/:
+    post:
+      operationId: sad_interns_import_create
+      description: Загрузка CSV/XLSX, постановка Celery-задачи. Только администратор.
+      summary: Импорт «грустят» из файла
+      tags:
+      - Грустящие студенты
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/sad-interns/on-project/:
+    get:
+      operationId: sad_interns_on_project_retrieve
+      description: Пагинированный список со статусом on_project (`on_project_page`).
+      summary: Вышли на проект
+      parameters:
+      - in: query
+        name: direction
+        schema:
+          type: integer
+      - in: query
+        name: on_project_page
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - Грустящие студенты
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SadInternList'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenAPI-схема для менеджеров и администраторов.
+
+        Доступ только для менеджеров и администраторов. Студенты получают 403.
+        При доступе без сессии возвращает 401 (для API-клиентов без браузера).
+
+        authentication_classes — DRF-слой (defense-in-depth).
+        permission_classes = [] — намеренно: кастомный get() возвращает 401 JSON
+        вместо DRF-редиректа, что удобно для программных клиентов Swagger UI.
+      summary: Схема OpenAPI
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      tags:
+      - Документация API
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/transcriptions/deepgram-balance/:
+    get:
+      operationId: transcriptions_deepgram_balance_retrieve
+      description: Только администратор.
+      summary: Баланс Deepgram
+      tags:
+      - Интервью
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/users/me/:
+    get:
+      operationId: users_me_retrieve
+      description: Возвращает профиль текущего аутентифицированного пользователя.
+      summary: Профиль текущего пользователя
+      tags:
+      - Менеджеры
+      security:
+      - cookieAuth: []
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerList'
+          description: ''
+  /api/vector/search/:
+    post:
+      operationId: vector_search_create
+      description: Поиск по естественному языку с использованием векторных эмбеддингов
+      summary: Семантический поиск
+      tags:
+      - Векторный поиск
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SemanticSearchRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SemanticSearchRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SemanticSearchRequestRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticSearchResponse'
+          description: ''
+  /api/vector/similar/:
+    post:
+      operationId: vector_similar_create
+      description: Находит похожие объекты того же типа
+      summary: Поиск похожих сущностей
+      tags:
+      - Векторный поиск
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimilarEntitiesRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SimilarEntitiesRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SimilarEntitiesRequestRequest'
+        required: true
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SemanticSearchResult'
+          description: ''
+  /api/vector/stats/:
+    get:
+      operationId: vector_stats_retrieve
+      description: Возвращает информацию о количестве векторизованных объектов
+      summary: Статистика векторизации
+      tags:
+      - Векторный поиск
+      security:
+      - SessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_embeddings:
+                    type: integer
+                  by_type:
+                    type: object
+                    additionalProperties: true
+                  last_updated:
+                    type: string
+                    nullable: true
+                  embedding_dimension:
+                    type: integer
+                  role:
+                    type: string
+          description: Сводка по эмбеддингам
+        '500':
+          description: Внутренняя ошибка
+components:
+  schemas:
+    AbsenceStatusEnum:
+      enum:
+      - болеет
+      - отпуск
+      - уехал
+      - другое
+      type: string
+      description: |-
+        * `болеет` - Болеет
+        * `отпуск` - Отпуск
+        * `уехал` - Уехал
+        * `другое` - Другое
+    BlankEnum:
+      enum:
+      - ''
+    Company:
+      type: object
+      description: Список и детали компании; запись полей name, is_bigtech, aliases.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Название
+          maxLength: 255
+        is_bigtech:
+          type: boolean
+          title: Бигтех
+        aliases:
+          type: string
+          title: Псевдонимы
+          description: Варианты написания названия (по одному на строку). Используются
+            при автоматическом импорте.
+        aliases_list:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        interviews_count:
+          type: string
+          readOnly: true
+      required:
+      - aliases_list
+      - id
+      - interviews_count
+      - name
+    CompanyMergeRequest:
+      type: object
+      description: Тело POST /api/companies/merge/.
+      properties:
+        primary_id:
+          type: integer
+        duplicate_ids:
+          type: array
+          items:
+            type: integer
+      required:
+      - duplicate_ids
+      - primary_id
+    CompanyRequest:
+      type: object
+      description: Список и детали компании; запись полей name, is_bigtech, aliases.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Название
+          maxLength: 255
+        is_bigtech:
+          type: boolean
+          title: Бигтех
+        aliases:
+          type: string
+          title: Псевдонимы
+          description: Варианты написания названия (по одному на строку). Используются
+            при автоматическом импорте.
+      required:
+      - name
+    DebtByMonthRow:
+      type: object
+      description: 'Строка отчёта «долги по месяцам» (контекст: meta из resolve_debt_by_month_query
+        + подсветка).'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern_name:
+          type: string
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Общая сумма
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Остаток
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        payment_status_label:
+          type: string
+          readOnly: true
+        total_period_amount:
+          type: string
+          readOnly: true
+        period_amounts:
+          type: string
+          readOnly: true
+        row_highlight:
+          type: string
+          readOnly: true
+      required:
+      - balance
+      - direction_name
+      - id
+      - intern_name
+      - payment_status_label
+      - period_amounts
+      - row_highlight
+      - total_amount
+      - total_period_amount
+    DebtCreateUpdate:
+      type: object
+      description: Сериализатор для создания и обновления долга.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          default: '0.00'
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+      required:
+      - intern
+    DebtCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления долга.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          default: '0.00'
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+      required:
+      - intern
+    DebtDetail:
+      type: object
+      description: |-
+        Полный сериализатор долга с историей платежей.
+        Используется в GET /api/debts/{id}/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Общая сумма
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Остаток
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+        payment_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentHistory'
+          readOnly: true
+      required:
+      - balance
+      - direction_id
+      - direction_name
+      - id
+      - intern
+      - intern_name
+      - payment_history
+      - total_amount
+    DebtList:
+      type: object
+      description: |-
+        Сериализатор для списка долгов (облегчённый).
+        Используется в GET /api/debts/.
+        Контекст от list(): last_payment_by_debt, payments_four_months_by_debt, row_style_by_debt.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        display_telegram:
+          type: string
+          readOnly: true
+        display_email:
+          type: string
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Общая сумма
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          title: Остаток
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+        last_payment_month:
+          type: string
+          readOnly: true
+        last_payment_year:
+          type: string
+          readOnly: true
+        payments_four_months:
+          type: string
+          readOnly: true
+        row_highlight:
+          type: string
+          readOnly: true
+      required:
+      - balance
+      - direction_id
+      - direction_name
+      - display_email
+      - display_telegram
+      - id
+      - intern
+      - intern_name
+      - last_payment_month
+      - last_payment_year
+      - payments_four_months
+      - row_highlight
+      - total_amount
+    DeveloperStat:
+      type: object
+      description: Сериализатор для статистики по разработчику.
+      properties:
+        intern_id:
+          type: integer
+        intern_name:
+          type: string
+        direction_id:
+          type: integer
+          nullable: true
+        interview_count:
+          type: integer
+        first_interview_date:
+          type: string
+          format: date
+          nullable: true
+        last_interview_date:
+          type: string
+          format: date
+          nullable: true
+        id:
+          type: integer
+        full_name:
+          type: string
+        direction_name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+      required:
+      - direction_id
+      - direction_name
+      - first_interview_date
+      - full_name
+      - id
+      - intern_id
+      - intern_name
+      - interview_count
+      - last_interview_date
+    Direction:
+      type: object
+      description: |-
+        Сериализатор для списка и деталей направления.
+        Используется в GET /api/directions/ и GET /api/directions/<id>/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Название
+          maxLength: 255
+      required:
+      - id
+      - name
+    DirectionRequest:
+      type: object
+      description: |-
+        Сериализатор для списка и деталей направления.
+        Используется в GET /api/directions/ и GET /api/directions/<id>/.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Название
+          maxLength: 255
+      required:
+      - name
+    EntityTypeEnum:
+      enum:
+      - interview
+      - intern
+      - offer
+      - debt
+      - sad_intern
+      - manager
+      - company
+      - direction
+      - intern_weekly_status
+      - kb_article
+      type: string
+      description: |-
+        * `interview` - interview
+        * `intern` - intern
+        * `offer` - offer
+        * `debt` - debt
+        * `sad_intern` - sad_intern
+        * `manager` - manager
+        * `company` - company
+        * `direction` - direction
+        * `intern_weekly_status` - intern_weekly_status
+        * `kb_article` - kb_article
+    InternCreateUpdate:
+      type: object
+      description: |-
+        Сериализатор для создания и обновления студента.
+        Используется в POST /api/interns/ и PATCH /api/interns/{id}/.
+      properties:
+        full_name:
+          type: string
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        direction_id:
+          type: integer
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          title: Ответственный HR
+          maxLength: 255
+        group:
+          type: string
+          title: Имя группы
+          maxLength: 20
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+        hr_feedback:
+          type: string
+          nullable: true
+          title: Отзыв HR после оценки кандидата
+        mentor_feedback:
+          type: string
+          nullable: true
+          title: Отзыв ментора после экзамена
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+      required:
+      - direction_id
+      - full_name
+      - group
+      - hiring_hr
+      - responsible_hr
+      - type_of_training
+    InternCreateUpdateRequest:
+      type: object
+      description: |-
+        Сериализатор для создания и обновления студента.
+        Используется в POST /api/interns/ и PATCH /api/interns/{id}/.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        direction_id:
+          type: integer
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          minLength: 1
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          minLength: 1
+          title: Ответственный HR
+          maxLength: 255
+        group:
+          type: string
+          minLength: 1
+          title: Имя группы
+          maxLength: 20
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+        hr_feedback:
+          type: string
+          nullable: true
+          title: Отзыв HR после оценки кандидата
+        mentor_feedback:
+          type: string
+          nullable: true
+          title: Отзыв ментора после экзамена
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+      required:
+      - direction_id
+      - full_name
+      - group
+      - hiring_hr
+      - responsible_hr
+      - type_of_training
+    InternDetail:
+      type: object
+      description: |-
+        Полный сериализатор студента.
+        Используется в GET /api/interns/{id}/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          title: Ответственный HR
+          maxLength: 255
+        group:
+          type: string
+          title: Имя группы
+          maxLength: 20
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+        hr_feedback:
+          type: string
+          nullable: true
+          title: Отзыв HR после оценки кандидата
+        mentor_feedback:
+          type: string
+          nullable: true
+          title: Отзыв ментора после экзамена
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        status:
+          type: string
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+      required:
+      - direction_id
+      - direction_name
+      - full_name
+      - group
+      - hiring_hr
+      - id
+      - responsible_hr
+      - status
+      - status_display
+      - type_of_training
+    InternList:
+      type: object
+      description: |-
+        Сериализатор для списка студентов (облегчённый).
+        Используется в GET /api/interns/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        group:
+          type: string
+          title: Имя группы
+          maxLength: 20
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        type_of_training_display:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        manager_display_name:
+          type: string
+          readOnly: true
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          title: Ответственный HR
+          maxLength: 255
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+      required:
+      - direction_id
+      - direction_name
+      - full_name
+      - group
+      - hiring_hr
+      - id
+      - manager_display_name
+      - responsible_hr
+      - status
+      - status_display
+      - type_of_training
+      - type_of_training_display
+    InternListRequest:
+      type: object
+      description: |-
+        Сериализатор для списка студентов (облегчённый).
+        Используется в GET /api/interns/.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        group:
+          type: string
+          minLength: 1
+          title: Имя группы
+          maxLength: 20
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          minLength: 1
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          minLength: 1
+          title: Ответственный HR
+          maxLength: 255
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+      required:
+      - full_name
+      - group
+      - hiring_hr
+      - responsible_hr
+      - type_of_training
+    InternWeeklyStatus:
+      type: object
+      description: |-
+        Сериализатор недельного статуса студента.
+        Используется в GET/POST/PATCH /api/employees/weekly-statuses/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        week_start:
+          type: string
+          format: date
+          title: Начало недели (понедельник)
+          description: Понедельник недели
+        manual_interview_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Ручное количество собесов
+          description: Если указано, используется вместо автоматического подсчёта
+        absence_status:
+          nullable: true
+          title: Статус отсутствия
+          description: |-
+            Статус отсутствия на эту неделю
+
+            * `болеет` - Болеет
+            * `отпуск` - Отпуск
+            * `уехал` - Уехал
+            * `другое` - Другое
+          oneOf:
+          - $ref: '#/components/schemas/AbsenceStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        absence_notes:
+          type: string
+          nullable: true
+          title: Комментарий к отсутствию
+          description: Дополнительная информация о причине отсутствия
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - intern
+      - intern_name
+      - updated_at
+      - week_start
+    InternWeeklyStatusCreateUpdate:
+      type: object
+      description: Сериализатор для создания и обновления недельного статуса.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        week_start:
+          type: string
+          format: date
+          title: Начало недели (понедельник)
+          description: Понедельник недели
+        manual_interview_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Ручное количество собесов
+          description: Если указано, используется вместо автоматического подсчёта
+        absence_status:
+          nullable: true
+          title: Статус отсутствия
+          description: |-
+            Статус отсутствия на эту неделю
+
+            * `болеет` - Болеет
+            * `отпуск` - Отпуск
+            * `уехал` - Уехал
+            * `другое` - Другое
+          oneOf:
+          - $ref: '#/components/schemas/AbsenceStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        absence_notes:
+          type: string
+          nullable: true
+          title: Комментарий к отсутствию
+          description: Дополнительная информация о причине отсутствия
+      required:
+      - intern
+      - week_start
+    InternWeeklyStatusCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления недельного статуса.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        week_start:
+          type: string
+          format: date
+          title: Начало недели (понедельник)
+          description: Понедельник недели
+        manual_interview_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Ручное количество собесов
+          description: Если указано, используется вместо автоматического подсчёта
+        absence_status:
+          nullable: true
+          title: Статус отсутствия
+          description: |-
+            Статус отсутствия на эту неделю
+
+            * `болеет` - Болеет
+            * `отпуск` - Отпуск
+            * `уехал` - Уехал
+            * `другое` - Другое
+          oneOf:
+          - $ref: '#/components/schemas/AbsenceStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        absence_notes:
+          type: string
+          nullable: true
+          title: Комментарий к отсутствию
+          description: Дополнительная информация о причине отсутствия
+      required:
+      - intern
+      - week_start
+    InterviewCreateUpdate:
+      type: object
+      description: Сериализатор для создания и обновления собеседования.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company_id:
+          type: integer
+          nullable: true
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        interview_type:
+          allOf:
+          - $ref: '#/components/schemas/InterviewTypeEnum'
+          title: Тип интервью
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        time:
+          type: string
+          format: time
+          nullable: true
+          title: Время интервью
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        vacancy_link:
+          type: string
+          nullable: true
+          title: Ссылка на вакансию
+          maxLength: 999
+        interview_link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на собеседование
+          maxLength: 999
+        hr_name:
+          type: string
+          nullable: true
+          title: Имя HR
+          maxLength: 255
+        hr_contacts:
+          type: string
+          nullable: true
+          title: Контакты HR
+          maxLength: 255
+      required:
+      - direction_id
+      - intern
+      - interview_type
+    InterviewCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления собеседования.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company_id:
+          type: integer
+          nullable: true
+        company_name:
+          type: string
+          writeOnly: true
+          description: Название новой или существующей компании (если нет company_id).
+            Создаёт запись через get_or_create.
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        interview_type:
+          allOf:
+          - $ref: '#/components/schemas/InterviewTypeEnum'
+          title: Тип интервью
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        time:
+          type: string
+          format: time
+          nullable: true
+          title: Время интервью
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        vacancy_link:
+          type: string
+          nullable: true
+          title: Ссылка на вакансию
+          maxLength: 999
+        interview_link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на собеседование
+          maxLength: 999
+        hr_name:
+          type: string
+          nullable: true
+          title: Имя HR
+          maxLength: 255
+        hr_contacts:
+          type: string
+          nullable: true
+          title: Контакты HR
+          maxLength: 255
+      required:
+      - direction_id
+      - intern
+      - interview_type
+    InterviewFormatEnum:
+      enum:
+      - online
+      - office
+      - phone
+      type: string
+      description: |-
+        * `online` - Онлайн
+        * `office` - Офис
+        * `phone` - Телефонный звонок
+    InterviewFull:
+      type: object
+      description: |-
+        Полный сериализатор собеседования.
+        Используется в GET /api/interviews/{id}/ и общем списке.
+        Поле has_video — загруженная запись (непустой video_link), не путать с link (ссылка на созвон).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        company_id:
+          type: integer
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        manager_display_name:
+          type: string
+          readOnly: true
+        interview_type:
+          allOf:
+          - $ref: '#/components/schemas/InterviewTypeEnum'
+          title: Тип интервью
+        interview_type_display:
+          type: string
+          readOnly: true
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+        interview_format_display:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        time:
+          type: string
+          format: time
+          nullable: true
+          title: Время интервью
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        vacancy_link:
+          type: string
+          nullable: true
+          title: Ссылка на вакансию
+          maxLength: 999
+        interview_link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на собеседование
+          maxLength: 999
+        video_link:
+          type: string
+          readOnly: true
+        upload_task_id:
+          type: string
+          readOnly: true
+          nullable: true
+          title: ID задачи загрузки видео (Celery)
+        has_video:
+          type: string
+          readOnly: true
+        transcription_media_url:
+          type: string
+          readOnly: true
+        transcription_status:
+          type: string
+          readOnly: true
+        transcription_error_message:
+          type: string
+          readOnly: true
+        hr_name:
+          type: string
+          nullable: true
+          title: Имя HR
+          maxLength: 255
+        hr_contacts:
+          type: string
+          nullable: true
+          title: Контакты HR
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - company_id
+      - company_name
+      - created_at
+      - direction_id
+      - direction_name
+      - has_video
+      - id
+      - intern
+      - intern_name
+      - interview_format_display
+      - interview_type
+      - interview_type_display
+      - manager_display_name
+      - transcription_error_message
+      - transcription_media_url
+      - transcription_status
+      - updated_at
+      - upload_task_id
+      - video_link
+    InterviewFullRequest:
+      type: object
+      description: |-
+        Полный сериализатор собеседования.
+        Используется в GET /api/interviews/{id}/ и общем списке.
+        Поле has_video — загруженная запись (непустой video_link), не путать с link (ссылка на созвон).
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        interview_type:
+          allOf:
+          - $ref: '#/components/schemas/InterviewTypeEnum'
+          title: Тип интервью
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        time:
+          type: string
+          format: time
+          nullable: true
+          title: Время интервью
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        vacancy_link:
+          type: string
+          nullable: true
+          title: Ссылка на вакансию
+          maxLength: 999
+        interview_link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на собеседование
+          maxLength: 999
+        hr_name:
+          type: string
+          nullable: true
+          title: Имя HR
+          maxLength: 255
+        hr_contacts:
+          type: string
+          nullable: true
+          title: Контакты HR
+          maxLength: 255
+      required:
+      - intern
+      - interview_type
+    InterviewList:
+      type: object
+      description: |-
+        Сериализатор для получения списка собеседований.
+        Возвращает: id, компания, дата, тип, направление, tg_account, ссылка на видео.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        company:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        interview_type:
+          type: string
+        direction:
+          type: string
+          readOnly: true
+        tg_account:
+          type: string
+          readOnly: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+      required:
+      - company
+      - direction
+      - id
+      - interview_type
+      - tg_account
+    InterviewTypeEnum:
+      enum:
+      - screening
+      - tech
+      - hr
+      - final
+      - mock
+      - test
+      - tech_questionnaire
+      - cancelled
+      type: string
+      description: |-
+        * `screening` - Скрининг
+        * `tech` - Техническое собеседование
+        * `hr` - HR собеседование
+        * `final` - Финальное собеседование
+        * `mock` - МОК собеседование
+        * `test` - Тестовое задание
+        * `tech_questionnaire` - Анкета с большим кол-вом технички
+        * `cancelled` - НЕ СОСТОЯЛОСЬ
+    KBArticleCreateRequest:
+      type: object
+      description: Создание статьи.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+          default: ''
+      required:
+      - title
+    KBArticleDetail:
+      type: object
+      description: Детали статьи для просмотра / редактора.
+      properties:
+        filename:
+          type: string
+        title:
+          type: string
+        markdown:
+          type: string
+        full_content:
+          type: string
+        html:
+          type: string
+        section_id:
+          type: string
+      required:
+      - filename
+      - full_content
+      - html
+      - markdown
+      - section_id
+      - title
+    KBArticleListItem:
+      type: object
+      description: Элемент списка статей в разделе.
+      properties:
+        filename:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+      required:
+      - filename
+      - slug
+      - title
+    KBSearchResult:
+      type: object
+      description: Элемент результата полнотекстового поиска.
+      properties:
+        section_id:
+          type: string
+        section_title:
+          type: string
+        section_icon:
+          type: string
+        filename:
+          type: string
+        title:
+          type: string
+      required:
+      - filename
+      - section_icon
+      - section_id
+      - section_title
+      - title
+    KBSectionCreateRequest:
+      type: object
+      description: Создание раздела.
+      properties:
+        section_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          default: ''
+          maxLength: 500
+        icon:
+          type: string
+          default: 📁
+      required:
+      - section_id
+      - title
+    KBSectionRead:
+      type: object
+      description: Раздел (список / деталь).
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        order:
+          type: integer
+        article_count:
+          type: integer
+      required:
+      - article_count
+      - description
+      - icon
+      - id
+      - order
+      - title
+    ManagerList:
+      type: object
+      description: |-
+        Сериализатор для списка менеджеров.
+        Используется в GET /api/managers/.
+      properties:
+        email:
+          type: string
+          format: email
+          readOnly: true
+          description: Email менеджера
+        full_name:
+          type: string
+          title: Полное имя
+          description: ФИО менеджера
+          maxLength: 255
+        username:
+          type: string
+          description: Имя пользователя
+          maxLength: 255
+        groups:
+          title: Группы
+          description: Группы локальной роли (managers, students и другие)
+        is_active:
+          type: boolean
+          title: Активен
+          description: Активен ли менеджер в системе
+        is_admin:
+          type: boolean
+          readOnly: true
+        is_employment_manager:
+          type: boolean
+          readOnly: true
+        is_cv_manager:
+          type: boolean
+          readOnly: true
+        is_education_manager:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата обновления
+      required:
+      - created_at
+      - email
+      - full_name
+      - is_admin
+      - is_cv_manager
+      - is_education_manager
+      - is_employment_manager
+      - updated_at
+      - username
+    ManualStatusEnum:
+      enum:
+      - активный
+      - ушел
+      - оффер
+      type: string
+      description: |-
+        * `активный` - Активный
+        * `ушел` - Ушёл
+        * `оффер` - Оффер
+    NullEnum:
+      enum:
+      - null
+    OfferCreateUpdate:
+      type: object
+      description: Сериализатор для создания и обновления оффера.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company:
+          type: string
+          nullable: true
+          title: Компания
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Сумма в оффере
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Год
+      required:
+      - direction_id
+      - intern
+      - month
+      - year
+    OfferCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления оффера.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company:
+          type: string
+          nullable: true
+          title: Компания
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Сумма в оффере
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Год
+      required:
+      - direction_id
+      - intern
+      - month
+      - year
+    OfferDetail:
+      type: object
+      description: |-
+        Полный сериализатор оффера.
+        Используется в GET /api/offers/{id}/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        intern_telegram_username:
+          type: string
+          readOnly: true
+          nullable: true
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        company:
+          type: string
+          nullable: true
+          title: Компания
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Сумма в оффере
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Год
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - direction_id
+      - direction_name
+      - id
+      - intern
+      - intern_name
+      - intern_telegram_username
+      - month
+      - updated_at
+      - year
+    OfferList:
+      type: object
+      description: |-
+        Сериализатор для списка офферов.
+        Используется в GET /api/offers/.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        intern_telegram_username:
+          type: string
+          readOnly: true
+          nullable: true
+        direction_id:
+          type: integer
+          readOnly: true
+        direction_name:
+          type: string
+          readOnly: true
+        company:
+          type: string
+          nullable: true
+          title: Компания
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Сумма в оффере
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Год
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - direction_id
+      - direction_name
+      - id
+      - intern
+      - intern_name
+      - intern_telegram_username
+      - month
+      - year
+    PaginatedCompanyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+    PaginatedDebtListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtList'
+    PaginatedDeveloperStatList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeveloperStat'
+    PaginatedDirectionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Direction'
+    PaginatedInternListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternList'
+    PaginatedInternWeeklyStatusList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternWeeklyStatus'
+    PaginatedInterviewFullList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterviewFull'
+    PaginatedManagerListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerList'
+    PaginatedOfferListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferList'
+    PaginatedSadInternListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SadInternList'
+    PatchedCompanyRequest:
+      type: object
+      description: Список и детали компании; запись полей name, is_bigtech, aliases.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Название
+          maxLength: 255
+        is_bigtech:
+          type: boolean
+          title: Бигтех
+        aliases:
+          type: string
+          title: Псевдонимы
+          description: Варианты написания названия (по одному на строку). Используются
+            при автоматическом импорте.
+    PatchedDebtCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления долга.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          default: '0.00'
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Уже заплатил
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          title: Статус
+        act_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата акта
+    PatchedInternCreateUpdateRequest:
+      type: object
+      description: |-
+        Сериализатор для создания и обновления студента.
+        Используется в POST /api/interns/ и PATCH /api/interns/{id}/.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        direction_id:
+          type: integer
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          minLength: 1
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          minLength: 1
+          title: Ответственный HR
+          maxLength: 255
+        group:
+          type: string
+          minLength: 1
+          title: Имя группы
+          maxLength: 20
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+        hr_feedback:
+          type: string
+          nullable: true
+          title: Отзыв HR после оценки кандидата
+        mentor_feedback:
+          type: string
+          nullable: true
+          title: Отзыв ментора после экзамена
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+    PatchedInternListRequest:
+      type: object
+      description: |-
+        Сериализатор для списка студентов (облегчённый).
+        Используется в GET /api/interns/.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          title: Имя
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        group:
+          type: string
+          minLength: 1
+          title: Имя группы
+          maxLength: 20
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 255
+        type_of_training:
+          allOf:
+          - $ref: '#/components/schemas/TypeOfTrainingEnum'
+          title: Тип обучения
+        manual_status:
+          nullable: true
+          title: Статус (ручной)
+          oneOf:
+          - $ref: '#/components/schemas/ManualStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        date_of_receipt:
+          type: string
+          format: date
+          nullable: true
+          title: Дата приемки студента
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+          title: Дата рождения
+        hiring_hr:
+          type: string
+          minLength: 1
+          title: Нанимающий HR
+          maxLength: 255
+        responsible_hr:
+          type: string
+          minLength: 1
+          title: Ответственный HR
+          maxLength: 255
+        real_interview_date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата выхода на реальные собеседования
+        cv:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на резюме
+          maxLength: 500
+        legend:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на легенду
+          maxLength: 500
+    PatchedInternWeeklyStatusCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления недельного статуса.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        week_start:
+          type: string
+          format: date
+          title: Начало недели (понедельник)
+          description: Понедельник недели
+        manual_interview_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Ручное количество собесов
+          description: Если указано, используется вместо автоматического подсчёта
+        absence_status:
+          nullable: true
+          title: Статус отсутствия
+          description: |-
+            Статус отсутствия на эту неделю
+
+            * `болеет` - Болеет
+            * `отпуск` - Отпуск
+            * `уехал` - Уехал
+            * `другое` - Другое
+          oneOf:
+          - $ref: '#/components/schemas/AbsenceStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        absence_notes:
+          type: string
+          nullable: true
+          title: Комментарий к отсутствию
+          description: Дополнительная информация о причине отсутствия
+    PatchedInterviewCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления собеседования.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company_id:
+          type: integer
+          nullable: true
+        company_name:
+          type: string
+          writeOnly: true
+          description: Название новой или существующей компании (если нет company_id).
+            Создаёт запись через get_or_create.
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        interview_type:
+          allOf:
+          - $ref: '#/components/schemas/InterviewTypeEnum'
+          title: Тип интервью
+        interview_format:
+          allOf:
+          - $ref: '#/components/schemas/InterviewFormatEnum'
+          title: Формат собеседования
+        date:
+          type: string
+          format: date
+          nullable: true
+          title: Дата интервью
+        time:
+          type: string
+          format: time
+          nullable: true
+          title: Время интервью
+        link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на созвон
+          maxLength: 999
+        vacancy_link:
+          type: string
+          nullable: true
+          title: Ссылка на вакансию
+          maxLength: 999
+        interview_link:
+          type: string
+          format: uri
+          nullable: true
+          title: Ссылка на собеседование
+          maxLength: 999
+        hr_name:
+          type: string
+          nullable: true
+          title: Имя HR
+          maxLength: 255
+        hr_contacts:
+          type: string
+          nullable: true
+          title: Контакты HR
+          maxLength: 255
+    PatchedKBArticleUpdateRequest:
+      type: object
+      description: Обновление статьи.
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+    PatchedKBSectionUpdateRequest:
+      type: object
+      description: Обновление раздела (частичное).
+      properties:
+        title:
+          type: string
+          nullable: true
+          minLength: 1
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+    PatchedManagerUpdateRequest:
+      type: object
+      description: |-
+        Сериализатор для обновления менеджера.
+        Только администратор может менять is_active.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          title: Полное имя
+          description: ФИО менеджера
+          maxLength: 255
+        username:
+          type: string
+          minLength: 1
+          description: Имя пользователя
+          maxLength: 255
+        is_active:
+          type: boolean
+          title: Активен
+          description: Активен ли менеджер в системе
+    PatchedOfferCreateUpdateRequest:
+      type: object
+      description: Сериализатор для создания и обновления оффера.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        direction_id:
+          type: integer
+        company:
+          type: string
+          nullable: true
+          title: Компания
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Сумма в оффере
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Год
+    PatchedSadInternCreateUpdateRequest:
+      type: object
+      description: Создание и обновление с логикой, близкой к SadInternForm / before_save.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        waiting_since:
+          type: string
+          format: date
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        status:
+          nullable: true
+          title: Статус
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        note:
+          type: string
+          nullable: true
+          title: Примечание
+    PaymentHistory:
+      type: object
+      description: Сериализатор истории платежей.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц (1-12)
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Год
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Сумма платежа
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания записи
+      required:
+      - amount
+      - created_at
+      - id
+      - month
+      - year
+    PaymentHistoryCreateRequest:
+      type: object
+      description: Сериализатор для добавления записи о платеже.
+      properties:
+        month:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Месяц (1-12)
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Год
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          title: Сумма платежа
+      required:
+      - amount
+      - month
+      - year
+    PaymentStatusEnum:
+      enum:
+      - searching
+      - paying
+      - unknown
+      type: string
+      description: |-
+        * `searching` - Снова ищем
+        * `paying` - Платит
+        * `unknown` - Без статуса
+    SadInternCreateUpdate:
+      type: object
+      description: Создание и обновление с логикой, близкой к SadInternForm / before_save.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        waiting_since:
+          type: string
+          format: date
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        status:
+          nullable: true
+          title: Статус
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        note:
+          type: string
+          nullable: true
+          title: Примечание
+      required:
+      - intern
+    SadInternCreateUpdateRequest:
+      type: object
+      description: Создание и обновление с логикой, близкой к SadInternForm / before_save.
+      properties:
+        intern:
+          type: integer
+          title: Студент
+        waiting_since:
+          type: string
+          format: date
+          nullable: true
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        status:
+          nullable: true
+          title: Статус
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        note:
+          type: string
+          nullable: true
+          title: Примечание
+      required:
+      - intern
+    SadInternDetail:
+      type: object
+      description: Детали записи — те же поля, что в списке.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        real_interview_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        direction_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        direction_name:
+          type: string
+          readOnly: true
+        date_added:
+          type: string
+          format: date
+          readOnly: true
+          title: Дата добавления в список грустящих
+        waiting_since:
+          type: string
+          format: date
+          title: Ждет с
+          description: Дата выхода на собеседования (real_interview_date). Показывает,
+            сколько дней студент у нас.
+        days_waiting:
+          type: integer
+          readOnly: true
+          title: Дней с нами
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        intern_manager_name:
+          type: string
+          readOnly: true
+        status:
+          nullable: true
+          title: Статус
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        status_display:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          nullable: true
+          title: Примечание
+      required:
+      - date_added
+      - days_waiting
+      - direction_id
+      - direction_name
+      - id
+      - intern
+      - intern_manager_name
+      - intern_name
+      - real_interview_date
+      - status_display
+      - waiting_since
+    SadInternList:
+      type: object
+      description: Сериализатор для списка «грустящих» (таблица, группировка, on_project).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        intern:
+          type: integer
+          title: Студент
+        intern_name:
+          type: string
+          readOnly: true
+        real_interview_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        direction_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        direction_name:
+          type: string
+          readOnly: true
+        date_added:
+          type: string
+          format: date
+          readOnly: true
+          title: Дата добавления в список грустящих
+        waiting_since:
+          type: string
+          format: date
+          title: Ждет с
+          description: Дата выхода на собеседования (real_interview_date). Показывает,
+            сколько дней студент у нас.
+        days_waiting:
+          type: integer
+          readOnly: true
+          title: Дней с нами
+        telegram_username:
+          type: string
+          nullable: true
+          title: '@tg'
+          maxLength: 100
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          title: Email менеджера
+          maxLength: 254
+        intern_manager_name:
+          type: string
+          readOnly: true
+        status:
+          nullable: true
+          title: Статус
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        status_display:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          nullable: true
+          title: Примечание
+      required:
+      - date_added
+      - days_waiting
+      - direction_id
+      - direction_name
+      - id
+      - intern
+      - intern_manager_name
+      - intern_name
+      - real_interview_date
+      - status_display
+      - waiting_since
+    SemanticSearchRequestRequest:
+      type: object
+      description: Сериализатор запроса для семантического поиска.
+      properties:
+        query:
+          type: string
+          minLength: 1
+          description: Поисковый запрос на естественном языке
+        entity_type:
+          nullable: true
+          description: |-
+            Фильтр по типу сущности
+
+            * `interview` - interview
+            * `intern` - intern
+            * `offer` - offer
+            * `debt` - debt
+            * `sad_intern` - sad_intern
+            * `manager` - manager
+            * `company` - company
+            * `direction` - direction
+            * `intern_weekly_status` - intern_weekly_status
+            * `kb_article` - kb_article
+          oneOf:
+          - $ref: '#/components/schemas/EntityTypeEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        top_k:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: 'Количество результатов (по умолчанию: 10)'
+        min_score:
+          type: number
+          format: double
+          maximum: 1.0
+          minimum: 0.0
+          description: 'Минимальный score схожести (по умолчанию: 0.3)'
+        direction_id:
+          type: integer
+          nullable: true
+        manager_email:
+          type: string
+          format: email
+          nullable: true
+          minLength: 1
+        interview_type:
+          type: string
+          nullable: true
+          minLength: 1
+        status:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - query
+    SemanticSearchResponse:
+      type: object
+      description: Сериализатор ответа семантического поиска.
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchResult'
+        total_found:
+          type: integer
+        search_time_ms:
+          type: number
+          format: double
+      required:
+      - query
+      - results
+      - search_time_ms
+      - total_found
+    SemanticSearchResult:
+      type: object
+      description: Сериализатор результата семантического поиска.
+      properties:
+        entity_type:
+          type: string
+        entity_id:
+          type: integer
+        text_content:
+          type: string
+        similarity_score:
+          type: number
+          format: double
+        metadata: {}
+      required:
+      - entity_id
+      - entity_type
+      - metadata
+      - similarity_score
+      - text_content
+    SimilarEntitiesRequestRequest:
+      type: object
+      description: Сериализатор запроса для поиска похожих сущностей.
+      properties:
+        entity_type:
+          allOf:
+          - $ref: '#/components/schemas/EntityTypeEnum'
+          description: |-
+            Тип сущности
+
+            * `interview` - interview
+            * `intern` - intern
+            * `offer` - offer
+            * `debt` - debt
+            * `sad_intern` - sad_intern
+            * `manager` - manager
+            * `company` - company
+            * `direction` - direction
+            * `intern_weekly_status` - intern_weekly_status
+            * `kb_article` - kb_article
+        entity_id:
+          type: integer
+          description: ID сущности
+        top_k:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 5
+          description: Количество похожих результатов
+      required:
+      - entity_id
+      - entity_type
+    StatusEnum:
+      enum:
+      - rejected
+      - accepted
+      - offered
+      - fired
+      - on_project
+      type: string
+      description: |-
+        * `rejected` - Отказ
+        * `accepted` - Взяли
+        * `offered` - Предложили
+        * `fired` - Уволили
+        * `on_project` - Вышел на проект
+    TypeOfTrainingEnum:
+      enum:
+      - internal
+      - outstaff
+      - external
+      - external_or_outstaff
+      type: string
+      description: |-
+        * `internal` - Внутреннее обучение
+        * `outstaff` - Аутстафф
+        * `external` - Во вне
+        * `external_or_outstaff` - Во вне / аутстафф
+  securitySchemes:
+    SessionAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Сессия локального входа.
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+      description: Сессионная аутентификация (для браузера)
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+tags:
+- name: Документация API
+  description: Схема OpenAPI, Swagger UI, ReDoc
+- name: Авторизация
+  description: Локальный вход SPA
+- name: Аналитика
+  description: Сводные метрики и дашборды
+- name: Менеджеры
+  description: Учётные записи менеджеров и смежная аналитика
+- name: Студенты
+  description: Учебные записи (API-префикс /interns/)
+- name: Грустящие студенты
+  description: Список ожидания (API-префикс /sad-interns/)
+- name: Портал студента
+  description: Личный кабинет студента
+- name: Векторный поиск
+  description: Семантический поиск по данным (только при подключённом приложении vector_search)

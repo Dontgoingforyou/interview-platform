@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Платформа собеседований</title>
+    {% load static django_vite %}
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{% static 'images/favicon-48x48.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/favicon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'images/favicon-512x512.png' %}">
+    {% if not is_testing %}
+    <!-- vite_hmr_client: HMR в dev; в prod тег не выводит скрипт -->
+    {% vite_hmr_client %}
+    <!-- Ключ должен совпадать с записью в .vite/manifest.json (сборка с index.html как входом). -->
+    {% vite_asset 'index.html' %}
+    {% endif %}
+</head>
+<body>
+    <!-- div#root — точка монтирования React (main.tsx) -->
+    <div id="root"></div>
+</body>
+</html>

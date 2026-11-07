@@ -1,0 +1,621 @@
+/* Общие стили страниц списков (interns / interviews / debts / employees): фильтры, аккордеоны, «Действия».
+ * Глобально: @import в index.css через interviews.css (и при необходимости напрямую).
+ * Блок формы фильтров: классы .filter-form + :is(.interviews-filters, .list-page-filters) — legacy и нейтральное имя.
+ * Специфика только собеседований — в interviews.css.
+ */
+
+/* Сетка и элементы формы фильтров списка */
+:is(.interviews-filters, .list-page-filters).filter-form {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-content: flex-start;
+  margin: 0 0 1.25rem;
+  position: relative;
+  overflow: visible;
+}
+
+.interviews-filter-chips-wrap {
+  flex: 1 0 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.interviews-filter-chips-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.interviews-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 10px 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent-primary);
+  background: var(--table-row-hover-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-chip {
+    transition: none;
+  }
+}
+
+.filter-chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.filter-chip__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(280px, 70vw);
+  text-align: left;
+}
+
+.filter-chip__remove {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.7;
+  font-weight: 300;
+}
+
+.filter-chip:hover .filter-chip__remove {
+  opacity: 1;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item {
+  flex: 1 1 200px;
+  min-width: 200px;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item {
+    max-width: 100%;
+  }
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item > label,
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date > .filter-item-date-label {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  min-height: 1.05rem;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input,
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg, var(--bg-primary));
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input:focus,
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item select:focus {
+  outline: none;
+  border-color: var(--input-focus-border, var(--accent-primary));
+  box-shadow: var(--input-focus-shadow, 0 0 0 0.2rem rgba(88, 166, 255, 0.25));
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap {
+  width: 100%;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__control {
+  min-height: 42px !important;
+  max-height: 42px !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__value-container {
+  padding: 0 6px !important;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__indicators {
+  height: 40px;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__indicator {
+  padding: 6px !important;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-select-wrap .react-select__single-value {
+  line-height: 1.25;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date {
+  flex: 2 1 400px;
+  min-width: 400px;
+  max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row .filter-item-select-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row select,
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row input[type='date'] {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg, var(--bg-primary));
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='date'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='datetime-local'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='month'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='week'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='time'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='date'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='datetime-local'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='month'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='week'],
+:is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='time'] {
+  color-scheme: dark light;
+}
+
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='date'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='datetime-local'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='month'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='week'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='time'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='date'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='datetime-local'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='month'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='week'],
+html[data-theme='dark'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='time'] {
+  color-scheme: dark;
+}
+
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='date'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='datetime-local'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='month'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='week'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date input[type='time'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='date'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='datetime-local'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='month'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='week'],
+html[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-item input[type='time'] {
+  color-scheme: light;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-buttons {
+  flex: 0 0 auto;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons {
+    flex: 1 1 100%;
+    max-width: 100%;
+    min-width: 100%;
+  }
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-buttons > label {
+  visibility: hidden;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  min-height: 1.05rem;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-buttons .button-group {
+  display: flex;
+  gap: 16px;
+  height: 42px;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-buttons .button-group button {
+  flex: 0 0 auto;
+  min-width: 120px;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+:is(.interviews-filters, .list-page-filters).filter-form .filter-buttons .button-group button:hover {
+  background: var(--btn-hover-bg);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+@media (max-width: 1024px) {
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row select,
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row input[type='date'],
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row .filter-item-select-wrap {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item > label,
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date > .filter-item-date-label {
+    font-size: 0.938rem;
+    margin-bottom: 8px;
+  }
+
+  :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons > label {
+    font-size: 0.938rem;
+    margin-bottom: 8px;
+  }
+}
+
+[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons .button-group button {
+  background: #ffffff;
+  color: #24292f;
+}
+
+[data-theme='light'] :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons .button-group button:hover {
+  background: var(--btn-hover-bg);
+  color: #24292f;
+  border-color: var(--accent-primary);
+}
+
+/* Колонка «Действия» в таблицах списков (interns / interviews) */
+.table-scroll .data-table th.interviews-col-actions {
+  text-align: left;
+}
+
+.table-scroll .data-table th.interviews-col-actions,
+.table-scroll .data-table td.interviews-col-actions {
+  display: table-cell;
+  width: 1%;
+  min-width: 15rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  background-clip: padding-box;
+}
+
+.table-scroll .data-table td.interviews-col-actions {
+  text-align: left;
+}
+
+/* Эмодзи-кнопки в колонке действий */
+.interviews-action-emoji.btn-small {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* Единый fadeIn при появлении данных страницы (переход от скелетона к реальным данным) */
+@media (prefers-reduced-motion: no-preference) {
+  .interviews-page-ready,
+  .interns-page-ready {
+    animation: fadeIn var(--duration-normal) var(--ease-out);
+  }
+}
+
+/* Заголовки секций списков */
+.interviews-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  padding: 0;
+  letter-spacing: -0.01em;
+}
+
+.interviews-section-title:not(:first-child) {
+  margin-top: 1.25rem;
+}
+
+/* Независимо сворачиваемые секции под метриками */
+.interviews-subsection {
+  margin-top: 0.625rem;
+}
+
+/* Единая карточка: шапка + контент */
+.interviews-subsection-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  transition: border-color var(--duration-fast, 0.15s);
+}
+
+/* Синяя рамка при наведении — только на устройствах с настоящим hover (не touch) */
+@media (hover: hover) {
+  .interviews-subsection-card:has(.interviews-subsection-head:hover) {
+    border-color: var(--accent-primary);
+  }
+
+  .interviews-subsection-head:hover {
+    background: var(--bg-tertiary);
+  }
+}
+
+.interviews-subsection-head {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border-radius: 7px 7px 0 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+/* Когда контент свёрнут — шапка скруглена со всех сторон */
+.interviews-subsection-card:has(.interviews-collapsible-block.is-collapsed) .interviews-subsection-head {
+  border-radius: 7px;
+}
+
+.interviews-subsection-head .interviews-section-title {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.interviews-subsection-head-trailing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.interviews-subsection-toggle {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-fast, 0.15s), color var(--duration-fast, 0.15s), border-color var(--duration-fast, 0.15s);
+}
+
+.interviews-subsection-toggle:hover,
+.interviews-subsection-head:hover .interviews-subsection-toggle {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.interviews-subsection-toggle svg {
+  transition: transform 0.35s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+  display: block;
+}
+
+.interviews-subsection-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.interviews-collapsible-block {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.4s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.interviews-collapsible-block.is-collapsed {
+  grid-template-rows: 0fr;
+}
+
+.interviews-collapsible-block__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Разделительная черта появляется только когда контент раскрыт */
+.interviews-subsection-card:has(.interviews-collapsible-block:not(.is-collapsed)) .interviews-subsection-head {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Компоненты с собственным card-стилем — убираем двойную рамку внутри карточки секции */
+.interviews-subsection-card .interviews-collapsible-block__inner > :is(.interviews-filters, .list-page-filters).filter-form,
+.interviews-subsection-card .interviews-collapsible-block__inner > .interview-type-stats {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interviews-collapsible-block {
+    transition: none;
+  }
+
+  .interviews-subsection-toggle svg {
+    transition: none;
+  }
+
+  .interviews-subsection-head {
+    transition: none;
+  }
+
+  .interviews-subsection-toggle {
+    transition: none;
+  }
+}
+
+/*
+ * Фоновое обновление таблиц/списков (opacity при refetch).
+ * Константа и helper: utils/listPageDataRefreshing.ts
+ */
+.list-data-refreshing {
+  opacity: 0.72;
+  transition: opacity var(--duration-normal, 0.25s) var(--ease-out, ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list-data-refreshing {
+    transition: none;
+  }
+}
+
+/*
+ * Длинные списки карточек на узком экране: отрисовка вне экрана откладывается (меньше лагов при скролле).
+ * contain-intrinsic-size — ориентировочная высота карточки, чтобы не прыгал скроллбар.
+ */
+@media (max-width: 991.98px) {
+  .interviews-mobile-cards > .interview-mobile-card,
+  .interns-mobile-cards > .intern-mobile-card,
+  .debts-mobile-cards > .debt-mobile-card,
+  .sad-intern-mobile-cards > .sad-intern-mobile-card,
+  .offers-mobile-cards > .offer-mobile-card,
+  .managers-mobile-cards > .managers-mobile-card,
+  .directions-mobile-cards > .directions-mobile-card,
+  .developers-mobile-cards > .developers-mobile-card,
+  .company-mobile-cards > .company-mobile-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 12rem;
+  }
+}
+
+/*
+ * Общие улучшения мобильных карточек по всему проекту:
+ * hover-тень и плавный переход (только на устройствах с hover).
+ * Карточки interviews имеют собственный transition в interviews.css;
+ * здесь добавляем то же поведение остальным.
+ */
+@media (hover: hover) {
+  .intern-mobile-card,
+  .debt-mobile-card,
+  .offer-mobile-card,
+  .sad-intern-mobile-card,
+  .managers-mobile-card,
+  .directions-mobile-card,
+  .developers-mobile-card,
+  .company-mobile-card {
+    transition: box-shadow var(--duration-fast, 0.15s) var(--ease-out, ease),
+      border-color var(--duration-fast, 0.15s) var(--ease-out, ease);
+  }
+
+  .intern-mobile-card:hover,
+  .debt-mobile-card:hover,
+  .offer-mobile-card:hover,
+  .sad-intern-mobile-card:hover,
+  .managers-mobile-card:hover,
+  .directions-mobile-card:hover,
+  .developers-mobile-card:hover,
+  .company-mobile-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--border-color) 60%, var(--accent-primary));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intern-mobile-card,
+  .debt-mobile-card,
+  .offer-mobile-card,
+  .sad-intern-mobile-card,
+  .managers-mobile-card,
+  .directions-mobile-card,
+  .developers-mobile-card,
+  .company-mobile-card {
+    transition: none;
+  }
+}

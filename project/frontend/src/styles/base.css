@@ -1,0 +1,81 @@
+/* Сброс отступов и базовые настройки */
+
+html {
+  /* Резерв под полосу прокрутки — меньше горизонтального сдвига при появлении/скрытии скролла */
+  scrollbar-gutter: stable;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  /* Фон: паттерн + градиент активной темы */
+  background-color: var(--bg-primary);
+  background-image:
+    var(--body-pattern, none),
+    var(
+      --body-bg,
+      linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-primary) 60%, var(--bg-secondary) 100%)
+    );
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  /* Без transition: смена темы мгновенная; общий transition по всему дереву давал «мутный» экран на секунды */
+}
+
+/* ─────────────────────────────────────────────────────
+   Глобальные базовые стили форм.
+   color-scheme: inherit — нативные элементы (date, select) берут схему от предка (:root).
+   Все фокусы через CSS-переменные темы, чтобы переключение тем давало мгновенный эффект.
+   ───────────────────────────────────────────────────── */
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Сообщаем браузеру использовать color-scheme от :root — без этого date-пикер белый на тёмной теме */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+  color-scheme: inherit;
+}
+
+/* Фокус для всех стандартных полей формы — единый стиль через переменные темы */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--input-focus-border, var(--accent-primary));
+  box-shadow: var(--input-focus-shadow, 0 0 0 0.2rem rgba(88, 166, 255, 0.25));
+}
+
+/* View Transitions API: кроссфейд корня при смене темы (см. themeStore.setTheme). Не глобальные transition на * — см. комментарий у body. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.28s;
+  animation-timing-function: var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0s !important;
+  }
+}

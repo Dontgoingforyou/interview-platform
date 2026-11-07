@@ -1,0 +1,197 @@
+@import './list-pages.css';
+
+/* Список офферов — таблица и подгрузка месяцев */
+.offers-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Доля ширины: ФИО и Компания шире поровну; «Действия» узкая и прижата вправо */
+.offers-table th:nth-child(1) {
+  width: 4%;
+}
+
+.offers-table th:nth-child(2) {
+  width: 30%;
+}
+
+.offers-table th:nth-child(3) {
+  width: 12%;
+}
+
+.offers-table th:nth-child(4) {
+  width: 27%;
+}
+
+.offers-table th:nth-child(5) {
+  width: 9%;
+}
+
+.offers-table th:nth-child(6) {
+  width: 11%;
+}
+
+.offers-table th:nth-child(7) {
+  width: 7%;
+}
+
+/* Липкие ID + ФИО: узкая первая колонка в rem; left второй = --data-table-sticky-col1-width (tables.css). */
+.table-scroll .data-table.offers-table.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 3.75rem;
+}
+
+/*
+ * Глобально у .interviews-col-actions min-width: 15rem — для офферов две компактные кнопки;
+ * прижимаем группу кнопок к правому краю ячейки.
+ */
+.table-scroll .data-table.offers-table th.interviews-col-actions,
+.table-scroll .data-table.offers-table td.interviews-col-actions {
+  min-width: 5.75rem;
+  text-align: right;
+}
+
+.table-scroll .data-table.offers-table td.interviews-col-actions .interview-table-actions--compact {
+  justify-content: flex-end;
+}
+
+.load-more-months {
+  margin-top: 2rem;
+  text-align: center;
+  padding: 1.5rem;
+  border-top: 2px solid var(--border-color);
+}
+
+.offers-month-section {
+  margin-bottom: 2rem;
+}
+
+.offers-month-pagination {
+  margin-top: 1rem;
+}
+
+/* Таблица / карточки: как interns-list / debts-list (до 992px — карточки) */
+.offers-list-page .offers-table-desktop {
+  display: none;
+}
+
+.offers-list-page .offers-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .offers-list-page .offers-table-desktop {
+    display: block;
+  }
+
+  .offers-list-page .offers-mobile-cards {
+    display: none;
+  }
+}
+
+/*
+ * tables.css: translateX(4px) на tr:hover даёт горизонтальный скролл у .table-scroll.
+ * Сброс — как у debts-list для data-table--debts.
+ */
+.table-scroll.table-scroll--plain .data-table.offers-table tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/*
+ * Мобильные карточки офферов: тот же визуал, что у debt-mobile-card,
+ * стили здесь — чтобы не зависеть от порядка CSS-чанков.
+ */
+.offer-mobile-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .offer-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.offer-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.offer-mobile-card__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.offer-mobile-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.offer-mobile-card__id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.offer-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.offer-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.offer-mobile-card__dl dt {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.offer-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.offer-mobile-card__dl dd a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.offer-mobile-card__dl dd a:hover {
+  text-decoration: underline;
+}
+
+.offer-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.offer-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}

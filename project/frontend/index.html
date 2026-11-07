@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Платформа собеседований</title>
+    <!-- FOUC: тема и сайдбар до первой отрисовки (формат ключа — zustand persist) -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('interview-management-theme')
+          if (raw) {
+            var p = JSON.parse(raw)
+            var t = p.state && p.state.theme
+            if (t === 'dark') {
+              document.documentElement.removeAttribute('data-theme')
+            } else if (
+              ['light', 'autumn', 'winter', 'spring', 'summer'].indexOf(t) !== -1
+            ) {
+              document.documentElement.setAttribute('data-theme', t)
+            }
+          }
+        } catch (e) {}
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+          document.documentElement.classList.add('sidebar-collapsed-initial')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

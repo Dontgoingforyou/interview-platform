@@ -1,0 +1,124 @@
+/**
+ * Тосты Sonner под темы приложения (success / error / info).
+ * Подключать после базовых стилей, чтобы перекрывать переменные библиотеки.
+ */
+
+[data-sonner-toaster][data-theme='dark'] {
+  --normal-bg: var(--bg-secondary);
+  --normal-border: var(--border-color);
+  --normal-text: var(--text-primary);
+  --normal-bg-hover: var(--btn-hover-bg);
+  --normal-border-hover: var(--accent-primary);
+
+  --success-bg: var(--bg-secondary);
+  --success-border: var(--border-color);
+  --success-text: var(--accent-primary);
+
+  --info-bg: var(--bg-secondary);
+  --info-border: var(--border-color);
+  --info-text: var(--accent-primary);
+
+  --warning-bg: rgba(210, 153, 34, 0.1);
+  --warning-border: var(--border-color);
+  --warning-text: var(--text-primary);
+
+  --error-bg: rgba(248, 81, 73, 0.1);
+  --error-border: var(--border-color);
+  --error-text: var(--accent-red);
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast][data-styled='true'] {
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.2));
+  border-left: 3px solid var(--border-color);
+}
+
+[data-sonner-toaster][data-theme='dark']
+  [data-rich-colors='true'][data-sonner-toast][data-type='success'][data-styled='true'] {
+  border-left-color: var(--accent-primary);
+}
+
+[data-sonner-toaster][data-theme='dark']
+  [data-rich-colors='true'][data-sonner-toast][data-type='error'][data-styled='true'] {
+  border-left-color: var(--accent-red);
+}
+
+[data-sonner-toaster][data-theme='dark']
+  [data-rich-colors='true'][data-sonner-toast][data-type='warning'][data-styled='true'] {
+  border-left-color: var(--accent-yellow, #d29922);
+}
+
+[data-sonner-toaster][data-theme='dark']
+  [data-rich-colors='true'][data-sonner-toast][data-type='info'][data-styled='true'] {
+  border-left-color: var(--accent-primary);
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast] [data-close-button] {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast] [data-close-button]:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--accent-primary);
+}
+
+[data-sonner-toaster][data-theme='light'] {
+  --normal-bg: var(--bg-secondary);
+  --normal-border: var(--border-color);
+  --normal-text: var(--text-primary);
+  --normal-bg-hover: var(--btn-hover-bg);
+  --normal-border-hover: var(--accent-primary);
+
+  --success-bg: var(--bg-secondary);
+  --success-border: var(--border-color);
+  --success-text: var(--accent-primary);
+
+  --info-bg: var(--bg-secondary);
+  --info-border: var(--border-color);
+  --info-text: var(--accent-primary);
+
+  --warning-bg: rgba(210, 153, 34, 0.12);
+  --warning-border: var(--border-color);
+  --warning-text: var(--text-primary);
+
+  --error-bg: rgba(207, 34, 46, 0.08);
+  --error-border: var(--border-color);
+  --error-text: var(--accent-red);
+}
+
+[data-sonner-toaster][data-theme='light'] [data-sonner-toast][data-styled='true'] {
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.12));
+  border-left: 3px solid var(--border-color);
+}
+
+[data-sonner-toaster][data-theme='light']
+  [data-rich-colors='true'][data-sonner-toast][data-type='success'][data-styled='true'] {
+  border-left-color: var(--accent-primary);
+}
+
+[data-sonner-toaster][data-theme='light']
+  [data-rich-colors='true'][data-sonner-toast][data-type='error'][data-styled='true'] {
+  border-left-color: var(--accent-red);
+}
+
+[data-sonner-toaster][data-theme='light']
+  [data-rich-colors='true'][data-sonner-toast][data-type='warning'][data-styled='true'] {
+  border-left-color: var(--accent-yellow, #bc8c00);
+}
+
+[data-sonner-toaster][data-theme='light']
+  [data-rich-colors='true'][data-sonner-toast][data-type='info'][data-styled='true'] {
+  border-left-color: var(--accent-primary);
+}
+
+[data-sonner-toaster][data-theme='light'] [data-sonner-toast] [data-close-button] {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-sonner-toaster][data-theme='light'] [data-sonner-toast] [data-close-button]:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--accent-primary);
+}

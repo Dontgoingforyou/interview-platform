@@ -1,0 +1,637 @@
+/* Общая обёртка и таблица данных для списков (не только собеседования). */
+
+/* Два синхронных горизонтальных скролла (сверху и у основной области) — см. TableScroll.tsx */
+.table-scroll-dual {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.table-scroll-dual__rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 14px;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-tertiary);
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll-dual__rail::-webkit-scrollbar {
+  height: 12px;
+}
+
+.table-scroll-dual__rail::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.table-scroll-dual__rail::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--bg-tertiary);
+}
+
+.table-scroll-dual__rail::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+.table-scroll-dual__rail--plain {
+  height: 12px;
+  margin-bottom: 4px;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.table-scroll-dual__rail--plain::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-scroll-dual__rail--hidden {
+  display: none;
+}
+
+.table-scroll-dual__sizer {
+  height: 1px;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .table-scroll-dual__rail {
+    height: 12px;
+    margin-bottom: 4px;
+  }
+
+  .table-scroll-dual__rail::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-scroll-dual__rail::-webkit-scrollbar-track {
+    border-radius: 4px;
+  }
+
+  .table-scroll-dual__rail::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+  }
+}
+
+.table-scroll {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  margin: 24px 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-tertiary);
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 12px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--bg-tertiary);
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+@media (max-width: 768px) {
+  .table-scroll {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .table-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-scroll::-webkit-scrollbar-track {
+    border-radius: 4px;
+  }
+
+  .table-scroll::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+  }
+}
+
+.table-scroll .data-table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: var(--text-primary);
+  table-layout: auto;
+}
+
+/*
+ * Текстовые ссылки в таблицах — цвет темы (как interns-table-link-cell / data-table-link-cell).
+ * Раньше все <a> были var(--text-primary) — вне собеседований ссылки сливались с текстом.
+ * Кнопки (.btn-*) и бейджи RAG исключаем: у них свои цвета из components / interns-list.
+ */
+.table-scroll .data-table a:not([class*='btn-']):not(.intern-rag-badge) {
+  color: var(--link-color, var(--accent-primary, #58a6ff)) !important;
+  text-decoration: none;
+}
+
+.table-scroll .data-table a:not([class*='btn-']):not(.intern-rag-badge):hover {
+  color: var(--link-hover, var(--link-color, var(--accent-primary, #58a6ff))) !important;
+  text-decoration: underline;
+}
+
+/* Ячейки «Телеграм» / «Email» / вакансия — то же самое, селектор оставлен для явной семантики */
+.table-scroll .data-table td.data-table-link-cell a:not([class*='btn-']):not(.intern-rag-badge) {
+  color: var(--link-color, var(--accent-primary, #58a6ff)) !important;
+  text-decoration: none;
+}
+
+.table-scroll .data-table td.data-table-link-cell a:not([class*='btn-']):not(.intern-rag-badge):hover {
+  color: var(--link-hover, var(--link-color, var(--accent-primary, #58a6ff))) !important;
+  text-decoration: underline;
+}
+
+.table-scroll .data-table thead th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  text-align: left;
+  padding: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+  white-space: normal;
+  word-wrap: break-word;
+  vertical-align: middle;
+}
+
+.table-scroll .data-table tbody td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  position: relative;
+  white-space: normal;
+  word-wrap: break-word;
+  vertical-align: middle;
+}
+
+.table-scroll .data-table tbody td[title]:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.table-scroll .data-table tbody tr {
+  /* background-color без transition — строки не «догоняют» тему */
+  transition:
+    transform var(--duration-normal) var(--ease-out, ease),
+    box-shadow var(--duration-normal) var(--ease-out, ease);
+}
+
+.table-scroll .data-table tbody tr:hover {
+  transform: translateX(var(--table-row-hover-shift, 2px));
+  box-shadow: inset 3px 0 0 var(--accent-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-scroll .data-table tbody tr {
+    transition: none;
+  }
+
+  .table-scroll .data-table tbody tr:hover {
+    transform: none;
+  }
+}
+
+.table-scroll .data-table tbody tr:hover td {
+  background: var(--table-row-hover-bg);
+}
+
+.table-scroll .data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.table-scroll .data-table th.sortable:hover {
+  color: var(--accent-primary);
+}
+
+.sort-header-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.sort-header-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.sort-header-btn__label {
+  /* Без flex: 1 — стрелка сортировки сразу после текста, а не у правого края ячейки */
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.sort-header-btn__mark {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+/* Длинный заголовок: короткий текст + кнопка «+» / «−» (SortTh с collapsedLabel) */
+.sort-header-cell--collapsible {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.2rem;
+  max-width: 100%;
+}
+
+.sort-header-cell--collapsible .sort-header-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.sort-header-label-toggle {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-tertiary) 60%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sort-header-label-toggle:hover {
+  color: var(--accent-primary);
+  border-color: color-mix(in srgb, var(--accent-primary) 45%, var(--border-color));
+}
+
+.sort-header-label-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.table-scroll .data-table .text-danger {
+  color: var(--danger-text, #f85149) !important;
+}
+
+/* Shimmer-скелетон строк таблицы при загрузке */
+/* Строка-скелетон появляется только через 250ms: быстрые ответы API не вызывают мигания */
+.skeleton-row {
+  opacity: 0;
+  animation: loadingAppear 0.15s ease forwards 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-row {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.skeleton {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--border-color) 35%,
+    var(--bg-tertiary) 50%,
+    var(--border-color) 65%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 8px;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+  }
+}
+
+/* ─── Плоская таблица (собеседования, студенты): без «коробки», фон из темы страницы ─── */
+.table-scroll.table-scroll--plain {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0.5rem 0 1.25rem;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.table-scroll.table-scroll--plain::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-scroll.table-scroll--plain .data-table thead th {
+  background-color: transparent;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+}
+
+.table-scroll.table-scroll--plain .data-table tbody tr:nth-child(even) > td,
+.table-scroll.table-scroll--plain .data-table tbody tr:nth-child(odd) > td {
+  background-color: transparent;
+  border-bottom-color: color-mix(in srgb, var(--border-color) 45%, transparent);
+}
+
+.table-scroll.table-scroll--plain .data-table tbody tr:hover > td {
+  background: var(--table-row-hover-bg);
+}
+
+/* Заголовок и кнопки «Действия» слева */
+.table-scroll.table-scroll--plain .data-table th.interviews-col-actions,
+.table-scroll.table-scroll--plain .data-table td.interviews-col-actions {
+  text-align: left;
+}
+
+/*
+ * Липкие первые две колонки (модификатор data-table--sticky-leading на <table>).
+ * TableScroll добавляет table-scroll--h-scrolled при scrollLeft > 0.
+ * На таблице можно задать:
+ *   --data-table-sticky-col1-width — ширина 1-й колонки (по умолчанию 3.75rem ≈ узкий ID);
+ *   --data-table-sticky-col2-left — left для 2-й (по умолчанию = ширине 1-й);
+ *   --data-table-sticky-mask-odd / --data-table-sticky-mask-even — фон липких ячеек при скролле (plain).
+ */
+.table-scroll .data-table.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 3.75rem;
+  --data-table-sticky-col2-left: var(--data-table-sticky-col1-width);
+  --data-table-sticky-mask-odd: var(--bg-secondary);
+  --data-table-sticky-mask-even: color-mix(in srgb, var(--bg-tertiary) 50%, var(--bg-secondary));
+}
+
+.table-scroll .data-table.data-table--sticky-leading thead th:nth-child(1),
+.table-scroll .data-table.data-table--sticky-leading tbody td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: var(--data-table-sticky-col1-width);
+  box-shadow: 1px 0 0 var(--border-color);
+}
+
+.table-scroll .data-table.data-table--sticky-leading thead th:nth-child(2),
+.table-scroll .data-table.data-table--sticky-leading tbody td:nth-child(2) {
+  position: sticky;
+  left: var(--data-table-sticky-col2-left);
+  z-index: 2;
+  box-shadow: 1px 0 0 var(--border-color);
+}
+
+/* Плоская таблица + липкие: без translate на hover (не раздувать горизонтальный скролл) */
+.table-scroll.table-scroll--plain .data-table.data-table--sticky-leading tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Карточная обёртка: зебра и фон липких как у общей таблицы */
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading thead th:nth-child(1),
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading thead th:nth-child(2) {
+  z-index: 4;
+  background: var(--bg-tertiary);
+}
+
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading tbody td:nth-child(1),
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading tbody td:nth-child(2) {
+  background: var(--bg-secondary);
+}
+
+.table-scroll:not(.table-scroll--plain)
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:nth-child(even)
+  > td:nth-child(1),
+.table-scroll:not(.table-scroll--plain)
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:nth-child(even)
+  > td:nth-child(2) {
+  background-color: color-mix(in srgb, var(--bg-tertiary) 50%, var(--bg-secondary));
+}
+
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading tbody tr:hover > td:nth-child(1),
+.table-scroll:not(.table-scroll--plain) .data-table.data-table--sticky-leading tbody tr:hover > td:nth-child(2) {
+  background: var(--table-row-hover-bg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .table-scroll.table-scroll--plain .data-table tbody td {
+    transition: background-color var(--duration-normal) var(--ease-out, ease);
+  }
+
+  .table-scroll.table-scroll--plain .data-table.data-table--sticky-leading thead th:nth-child(1),
+  .table-scroll.table-scroll--plain .data-table.data-table--sticky-leading thead th:nth-child(2) {
+    transition: background-color var(--duration-normal) var(--ease-out, ease);
+  }
+}
+
+/* Без горизонтального скролла контент не заходит под липкие ячейки — тень справа не нужна (иначе лишняя вертикальная черта). */
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled) .data-table.data-table--sticky-leading thead th:nth-child(1),
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled) .data-table.data-table--sticky-leading thead th:nth-child(2) {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled) .data-table.data-table--sticky-leading tbody td:nth-child(1),
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled) .data-table.data-table--sticky-leading tbody td:nth-child(2) {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled)
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:hover
+  > td:nth-child(1),
+.table-scroll.table-scroll--plain:not(.table-scroll--h-scrolled)
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:hover
+  > td:nth-child(2) {
+  background: var(--table-row-hover-bg);
+  background-image: none;
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--sticky-leading thead th:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--sticky-leading thead th:nth-child(2) {
+  background-color: var(--bg-tertiary);
+  box-shadow: 1px 0 0 color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--sticky-leading tbody td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled .data-table.data-table--sticky-leading tbody td:nth-child(2) {
+  background-color: var(--data-table-sticky-mask-odd);
+  box-shadow: 1px 0 0 color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:nth-child(even)
+  > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading
+  tbody
+  tr:nth-child(even)
+  > td:nth-child(2) {
+  background-color: var(--data-table-sticky-mask-even);
+}
+
+/* Hover: у собеседований оставляем полупрозрачный токен; в остальных разделах — непрозрачный подложка + тинт,
+ * иначе при горизонтальном скролле просвечивают ячейки под липкими колонками. */
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading:not(.interviews-data-table)
+  tbody
+  tr:nth-child(odd):hover
+  > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading:not(.interviews-data-table)
+  tbody
+  tr:nth-child(odd):hover
+  > td:nth-child(2) {
+  background-color: var(--data-table-sticky-mask-odd);
+  background-image: linear-gradient(var(--table-row-hover-bg), var(--table-row-hover-bg));
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading:not(.interviews-data-table)
+  tbody
+  tr:nth-child(even):hover
+  > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading:not(.interviews-data-table)
+  tbody
+  tr:nth-child(even):hover
+  > td:nth-child(2) {
+  background-color: var(--data-table-sticky-mask-even);
+  background-image: linear-gradient(var(--table-row-hover-bg), var(--table-row-hover-bg));
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.interviews-data-table.data-table--sticky-leading
+  tbody
+  tr:hover
+  > td:nth-child(1),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.interviews-data-table.data-table--sticky-leading
+  tbody
+  tr:hover
+  > td:nth-child(2) {
+  background-color: var(--table-row-hover-bg);
+  background-image: none;
+}
+
+/*
+ * Только первая колонка липкая (модификатор data-table--sticky-first-col-only на <table>).
+ * Снимаем position:left со 2-й и отключаем для неё маски при скролле — иначе ломается стык с % колонками.
+ */
+.table-scroll .data-table.data-table--sticky-leading.data-table--sticky-first-col-only thead th:nth-child(2),
+.table-scroll .data-table.data-table--sticky-leading.data-table--sticky-first-col-only tbody td:nth-child(2) {
+  position: static;
+  left: auto;
+  z-index: auto;
+  box-shadow: none;
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading.data-table--sticky-first-col-only
+  thead
+  th:nth-child(2) {
+  background-color: transparent;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading.data-table--sticky-first-col-only
+  tbody
+  td:nth-child(2) {
+  background-color: transparent;
+  background-image: none;
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading.data-table--sticky-first-col-only
+  tbody
+  tr:nth-child(even)
+  > td:nth-child(2) {
+  background-color: transparent;
+  background-image: none;
+}
+
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading.data-table--sticky-first-col-only:not(.interviews-data-table)
+  tbody
+  tr:nth-child(odd):hover
+  > td:nth-child(2),
+.table-scroll.table-scroll--plain.table-scroll--h-scrolled
+  .data-table.data-table--sticky-leading.data-table--sticky-first-col-only:not(.interviews-data-table)
+  tbody
+  tr:nth-child(even):hover
+  > td:nth-child(2) {
+  background: var(--table-row-hover-bg);
+  background-image: none;
+}
+
+/* Долги: подсветка строк */
+.data-table tbody tr.row-not-paying {
+  background-color: rgba(248, 81, 73, 0.1);
+}
+
+.data-table tbody tr.row-not-paying td {
+  color: var(--accent-red);
+}
+
+.data-table tbody tr.row-not-paying:hover td {
+  background-color: rgba(248, 81, 73, 0.15);
+}
+
+.data-table tbody tr.row-paid-fully {
+  background-color: rgba(63, 185, 80, 0.1);
+}
+
+.data-table tbody tr.row-paid-fully td {
+  color: var(--accent-green);
+}
+
+.data-table tbody tr.row-paid-fully:hover td {
+  background-color: rgba(63, 185, 80, 0.15);
+}

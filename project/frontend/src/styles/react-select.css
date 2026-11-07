@@ -1,0 +1,180 @@
+/* ─────────────────────────────────────────────────────
+   React Select — темизация через CSS-переменные темы.
+   classNamePrefix="react-select" проставлен на каждом Select/AsyncSelect.
+   Автоматически адаптируется ко всем темам (dark, light, autumn, winter…).
+   ───────────────────────────────────────────────────── */
+
+.react-select__control {
+  /* Как у input/select в формах: сезонные темы задают --input-bg теплее --bg-primary */
+  background-color: var(--input-bg, var(--bg-primary)) !important;
+  border-color: var(--border-color) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  min-height: 34px !important;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text-primary) !important;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease !important;
+}
+
+.react-select__control:hover {
+  border-color: var(--accent-primary) !important;
+}
+
+.react-select__control--is-focused {
+  border-color: var(--input-focus-border) !important;
+  box-shadow: var(--input-focus-shadow) !important;
+}
+
+.react-select__value-container,
+.react-select__indicators-container {
+  background-color: transparent !important;
+}
+
+.react-select__value-container {
+  padding: 2px 8px !important;
+  color: var(--text-primary) !important;
+}
+
+.react-select__single-value {
+  color: var(--text-primary) !important;
+}
+
+.react-select__placeholder {
+  color: var(--text-muted) !important;
+  font-size: 0.875rem;
+}
+
+.react-select__input-container {
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.react-select__input {
+  color: var(--text-primary) !important;
+}
+
+/* Внутренний input: сброс border/padding от стилей input у родительской формы */
+.react-select__control input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  min-height: 0 !important;
+}
+
+.react-select__control input:focus,
+.react-select__control input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-select__indicator-separator {
+  background-color: var(--border-color) !important;
+}
+
+.react-select__indicator {
+  color: var(--text-secondary) !important;
+  padding: 4px 6px !important;
+}
+
+.react-select__indicator:hover {
+  color: var(--text-primary) !important;
+}
+
+.react-select__clear-indicator {
+  color: var(--text-muted) !important;
+  padding: 4px 6px !important;
+  cursor: pointer;
+}
+
+.react-select__clear-indicator:hover {
+  color: var(--accent-red) !important;
+}
+
+.react-select__loading-indicator {
+  color: var(--accent-primary) !important;
+}
+
+.react-select__menu {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  z-index: 9999 !important;
+  font-size: 0.875rem;
+  overflow: hidden;
+}
+
+.react-select__menu-list {
+  padding: 4px !important;
+  background-color: var(--bg-secondary) !important;
+  max-height: 220px !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.react-select__option {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  padding: 6px 10px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+}
+
+.react-select__option--is-focused {
+  background-color: var(--table-row-hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.react-select__option--is-selected {
+  background-color: var(--accent-primary) !important;
+  color: var(--text-on-accent) !important;
+}
+
+.react-select__option--is-selected.react-select__option--is-focused {
+  background-color: var(--accent-primary) !important;
+  filter: brightness(1.1);
+}
+
+.react-select__no-options-message,
+.react-select__loading-message {
+  color: var(--text-muted) !important;
+  font-size: 0.85rem;
+  padding: 8px 12px !important;
+}
+
+/* Скроллбар внутри меню */
+.react-select__menu-list::-webkit-scrollbar {
+  width: 6px;
+}
+.react-select__menu-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.react-select__menu-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+.react-select__menu-list::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Когда react-select внутри формы фильтров списка (.filter-form / list-page / legacy interviews) */
+.filter-form .react-select__control,
+:is(.interviews-filters, .list-page-filters) .react-select__control,
+.filter-form-wide .react-select__control {
+  min-height: 32px !important;
+  background-color: var(--input-bg, var(--bg-primary)) !important;
+}
+
+/* Когда react-select внутри .interview-form */
+.interview-form .react-select__control {
+  padding: 0 !important;
+  background-color: var(--input-bg, var(--bg-primary)) !important;
+}

@@ -1,0 +1,223 @@
+/**
+ * Общие анимации проекта.
+ * Учитываем prefers-reduced-motion: анимации отключены при «уменьшить движение».
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInUpShort {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pageTransition {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Появление сообщений справа (тосты/алерты) */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Сообщения: въезд справа + лёгкий отскок в конце */
+  @keyframes slideInRightBounce {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(-8px);
+    }
+    85% {
+      transform: translateX(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Сообщения: уход вправо при закрытии (крестик или через 5 сек) */
+  @keyframes slideOutRight {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(8px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  /* Вращение кнопки переключения темы при клике (полный оборот) */
+  @keyframes themeToggleSpin {
+    from {
+      transform: scale(1.05) rotate(0deg);
+    }
+    to {
+      transform: scale(1.05) rotate(360deg);
+    }
+  }
+
+  /* Плавное появление контента страницы при загрузке */
+  .content-container {
+    animation: fadeIn var(--duration-normal) var(--ease-out);
+  }
+
+  /* Утилиты для появления блоков (списки, карточки в сетке) */
+  .animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-out);
+  }
+
+  .animate-slide-up {
+    animation: slideInUp var(--duration-slow) var(--ease-out);
+  }
+
+  /* Появление дочерних элементов с задержкой по очереди */
+  .animate-stagger-children > * {
+    animation: fadeIn var(--duration-normal) var(--ease-out) both;
+  }
+
+  .animate-stagger-children > *:nth-child(1) { animation-delay: 0s; }
+  .animate-stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+  .animate-stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+  .animate-stagger-children > *:nth-child(4) { animation-delay: 0.18s; }
+  .animate-stagger-children > *:nth-child(5) { animation-delay: 0.24s; }
+  .animate-stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+  .animate-stagger-children > *:nth-child(7) { animation-delay: 0.36s; }
+  .animate-stagger-children > *:nth-child(8) { animation-delay: 0.42s; }
+  .animate-stagger-children > *:nth-child(9) { animation-delay: 0.48s; }
+  .animate-stagger-children > *:nth-child(10) { animation-delay: 0.54s; }
+  .animate-stagger-children > *:nth-child(11) { animation-delay: 0.6s; }
+  .animate-stagger-children > *:nth-child(12) { animation-delay: 0.66s; }
+  .animate-stagger-children > *:nth-child(13) { animation-delay: 0.72s; }
+  .animate-stagger-children > *:nth-child(14) { animation-delay: 0.78s; }
+  .animate-stagger-children > *:nth-child(15) { animation-delay: 0.84s; }
+
+  /* Заголовок страницы (h1) — появление с небольшой задержкой после контента */
+  .page-intro h1 {
+    animation: slideInUpShort var(--duration-normal) var(--ease-out) 0.12s both;
+  }
+}
+
+/* Скелетон для состояния загрузки таблиц/карточек (заметный shimmer) */
+.skeleton {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--border-color) 35%,
+    var(--bg-tertiary) 50%,
+    var(--border-color) 65%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Отключение декоративных переходов при «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  .page-intro,
+  .panel,
+  .card,
+  .table-scroll,
+  .callout {
+    transition: none;
+  }
+
+  .page-link {
+    transition: none;
+  }
+
+  .table-hover tbody tr,
+  .data-table tbody tr {
+    transition: none;
+  }
+
+  .table-hover tbody tr:hover,
+  .data-table tbody tr:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

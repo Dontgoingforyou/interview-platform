@@ -1,0 +1,72 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 24rem;
+  margin: 0;
+  padding: 1.5rem 1.5rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.login-card h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.login-field input {
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-btn);
+}
+
+.login-error {
+  margin: 0 0 0.75rem;
+  color: var(--accent-red);
+}
+
+.login-card .btn {
+  margin-top: 0.25rem;
+}
+
+.login-demo {
+  margin-top: 1.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.login-demo-title {
+  margin: 0 0 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.login-demo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.login-demo li {
+  padding: 0.15rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+}

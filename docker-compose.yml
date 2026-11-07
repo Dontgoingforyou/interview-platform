@@ -1,0 +1,131 @@
+# Единственный запуск. Из корня репозитория:
+# docker compose --env-file .env.local up --build
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV:-true}
+    container_name: interview_management_web_local
+    command: >
+      sh -c "mkdir -p /app/project/staticfiles/frontend &&
+             rm -rf /app/project/staticfiles/frontend/* &&
+             cp -r /app/frontend-dist/. /app/project/staticfiles/frontend/ &&
+             python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             exec gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 7200 core.wsgi:application"
+    volumes:
+      - ./staticfiles:/app/project/staticfiles
+      - ./media:/app/project/media
+      - ./private_uploads:/app/project/private_uploads
+      - ./logs:/app/project/logs:rw
+      - ./knowledge_base:/app/project/knowledge_base:rw
+    env_file:
+      - .env.local
+    environment:
+      - DB_HOST=db
+      - ALLOW_LOCALHOST=true
+    ports:
+      - "127.0.0.1:8001:8000"
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    networks:
+      - app_net
+
+  db:
+    image: ankane/pgvector:latest
+    container_name: interview_management_db_local
+    env_file:
+      - .env.local
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: always
+    volumes:
+      - db_data_local:/var/lib/postgresql/data
+      - ./db/setup_vector_db.sql:/docker-entrypoint-initdb.d/01_setup_vector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app_net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: interview_management_redis_local
+    command: redis-server
+    restart: always
+    volumes:
+      - redis_data_local:/data
+    networks:
+      - app_net
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV:-true}
+    container_name: interview_management_celery_worker_local
+    command: celery -A core worker --loglevel=info --pool=prefork --concurrency=2
+    volumes:
+      - ./media:/app/project/media
+      - ./private_uploads:/app/project/private_uploads
+      - ./logs:/app/project/logs:rw
+      - ./knowledge_base:/app/project/knowledge_base:rw
+    env_file:
+      - .env.local
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - DB_HOST=db
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: interview_management_nginx_local
+    ports:
+      - "82:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./staticfiles:/usr/share/nginx/html/static:ro
+      - ./media:/usr/share/nginx/html/media:ro
+    restart: always
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - app_net
+
+volumes:
+  db_data_local:
+  redis_data_local:
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.88.0/24

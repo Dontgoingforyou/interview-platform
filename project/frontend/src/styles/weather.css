@@ -1,0 +1,202 @@
+/* Погодные эффекты для сезонных тем.
+   Якорь (left), длительность и задержка анимации — inline в WeatherEffect.tsx;
+   анимация transform на __track, смещение от курсора — на __body. */
+
+.weather-effect {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  display: none;
+}
+
+/* Слой параллакса/порыва ветра (transform задаётся из JS) */
+.weather-effect__motion {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, 0, 0);
+}
+
+.weather-effect__rain {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, 0, 0);
+}
+
+.weather-effect .snowflake,
+.weather-effect .raindrop,
+.weather-effect .petal {
+  display: none;
+}
+
+/* --- Зима — снег --- */
+
+[data-theme="winter"] .weather-effect {
+  display: block;
+}
+
+[data-theme="winter"] .weather-effect .snowflake {
+  display: block;
+  position: absolute;
+  top: 0;
+  /* left задаётся inline в WeatherEffect */
+  width: 0;
+  height: 0;
+}
+
+[data-theme="winter"] .weather-effect .snowflake__track {
+  position: absolute;
+  left: 0;
+  top: -12px;
+  animation-name: weather-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+[data-theme="winter"] .weather-effect .snowflake__body {
+  display: block;
+  position: relative;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 4px rgba(200, 220, 255, 0.6);
+  border-radius: 50%;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes weather-fall {
+  to {
+    transform: translateY(100vh) translateX(15px);
+  }
+}
+
+/* --- Осень — дождь --- */
+
+[data-theme="autumn"] .weather-effect {
+  display: block;
+}
+
+[data-theme="autumn"] .weather-effect .raindrop {
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+[data-theme="autumn"] .weather-effect .raindrop__track {
+  position: absolute;
+  left: 0;
+  top: -30px;
+  animation-name: weather-rain;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+[data-theme="autumn"] .weather-effect .raindrop__body {
+  display: block;
+  position: relative;
+  left: -1px;
+  width: 2px;
+  height: 24px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(92, 69, 50, 0.65) 40%, rgba(62, 90, 118, 0.6) 100%);
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes weather-rain {
+  to {
+    transform: translateY(100vh);
+  }
+}
+
+/* --- Весна — лепестки --- */
+
+[data-theme="spring"] .weather-effect {
+  display: block;
+}
+
+[data-theme="spring"] .weather-effect .petal {
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+[data-theme="spring"] .weather-effect .petal__track {
+  position: absolute;
+  left: 0;
+  top: -18px;
+  animation-name: weather-float-petal;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+[data-theme="spring"] .weather-effect .petal__body {
+  display: block;
+  position: relative;
+  left: -7px;
+  width: 14px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(255, 240, 245, 0.85) 0%, rgba(255, 182, 193, 0.6) 70%, rgba(255, 160, 180, 0.4) 100%);
+  border-radius: 50% 50% 50% 0;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes weather-float-petal {
+  0% {
+    transform: translateY(0) translateX(0) rotate(45deg);
+    opacity: 0.95;
+  }
+  25% {
+    transform: translateY(25vh) translateX(12px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(50vh) translateX(-8px) rotate(150deg);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(75vh) translateX(6px) rotate(200deg);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(100vh) translateX(0) rotate(260deg);
+    opacity: 0.85;
+  }
+}
+
+/* --- Лето — лучи солнца (только CSS-фон, без анимированных частиц) --- */
+
+[data-theme="summer"] .weather-effect {
+  display: block;
+  background:
+    linear-gradient(113deg, transparent 0%, transparent 18%, rgba(255, 252, 242, 0.38) 32%, transparent 50%),
+    linear-gradient(123deg, transparent 0%, transparent 22%, rgba(255, 251, 238, 0.35) 36%, transparent 55%),
+    linear-gradient(133deg, transparent 0%, transparent 28%, rgba(255, 253, 240, 0.32) 42%, transparent 60%),
+    linear-gradient(143deg, transparent 0%, transparent 20%, rgba(255, 252, 245, 0.36) 34%, transparent 52%),
+    linear-gradient(118deg, transparent 0%, transparent 15%, rgba(255, 253, 245, 0.48) 30%, rgba(255, 251, 235, 0.28) 42%, transparent 58%),
+    linear-gradient(128deg, transparent 0%, transparent 20%, rgba(255, 252, 240, 0.42) 35%, rgba(255, 250, 230, 0.22) 48%, transparent 62%),
+    linear-gradient(138deg, transparent 0%, transparent 25%, rgba(255, 253, 242, 0.4) 40%, rgba(255, 251, 238, 0.2) 52%, transparent 65%),
+    linear-gradient(148deg, transparent 0%, transparent 18%, rgba(255, 252, 245, 0.44) 32%, transparent 50%),
+    linear-gradient(108deg, transparent 0%, transparent 12%, rgba(255, 254, 248, 0.42) 28%, rgba(255, 252, 240, 0.24) 40%, transparent 55%),
+    radial-gradient(ellipse 110% 90% at 94% -2%, rgba(255, 253, 248, 0.65) 0%, rgba(255, 251, 240, 0.25) 28%, transparent 52%);
+  background-attachment: fixed;
+}
+
+/* Отключение анимаций при предпочтении reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .weather-effect .snowflake__track,
+  .weather-effect .raindrop__track,
+  .weather-effect .petal__track {
+    animation: none;
+  }
+
+  .weather-effect .snowflake__body,
+  .weather-effect .raindrop__body,
+  .weather-effect .petal__body {
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,1354 @@
+/* Раздел «Сотрудники»: список менеджеров, доска, модалка отсутствия, админ-отчёты KPI / разработчики */
+
+/* ── Список менеджеров (таблица, как «Разработчики у менеджеров») ── */
+
+.employee-detail-back {
+  margin: 0 0 1rem;
+}
+
+.employee-detail-back a {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.employee-detail-back a:hover {
+  text-decoration: underline;
+}
+
+/* Не перебивать inline-flex у .btn-secondary — иначе текст «плывёт» в углу */
+.employee-detail-back-btn {
+  margin: 0 0 1rem;
+  text-decoration: none;
+}
+
+/* Поиск студента (как static search.css) */
+.employee-search-container.search-container {
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.employee-search-container .search-box {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.employee-search-container .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg, var(--bg-primary));
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition:
+    border-color var(--duration-normal, 0.2s) ease,
+    border-radius var(--duration-normal, 0.2s) ease,
+    box-shadow var(--duration-normal, 0.2s) ease;
+}
+
+.employee-search-container .search-input:focus {
+  outline: none;
+  border-color: var(--input-focus-border, var(--accent-primary));
+  box-shadow: var(--input-focus-shadow, none);
+}
+
+.employee-search-container .search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Единый блок поле + панель: без зазора и «ломаного» скругления */
+.employee-search-container .employee-search-box--has-panel .search-input {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.employee-search-container .search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+  margin: -1px 0 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 50;
+  padding: 0;
+  list-style: none;
+}
+
+.employee-search-container ul.search-results {
+  padding-inline-start: 0;
+}
+
+.employee-search-container .employee-search-results li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.employee-search-results {
+  display: block;
+}
+
+.search-results--loading,
+.search-results--error,
+.search-results--empty {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.employee-search-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employee-search-hit:hover {
+  background: var(--bg-tertiary);
+}
+
+.employee-search-hit--disabled {
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.employee-search-hit-name {
+  font-weight: 600;
+}
+
+.employee-search-hit-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ── Таблицы доски ───────────────────────────────────── */
+
+.employee-table-section {
+  margin-bottom: 2rem;
+}
+
+.employee-table-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Статусный бейдж (цветная метка + select при редактировании) */
+
+.status-editable {
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-label {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.status-label:hover {
+  opacity: 0.85;
+}
+
+@keyframes status-label-save-flash {
+  from {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+    filter: brightness(1.09);
+  }
+
+  to {
+    box-shadow: none;
+    filter: none;
+  }
+}
+
+.status-label.status-label--save-flash {
+  animation: status-label-save-flash 0.65s var(--ease-out, ease) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-label.status-label--save-flash {
+    animation: none;
+  }
+}
+
+.status-label.status-active {
+  background-color: var(--accent-green, #3fb950);
+  color: #fff;
+}
+
+.status-label.status-offer {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.status-label.status-left {
+  background-color: #dc3545;
+  color: var(--text-on-accent, #fff);
+}
+
+.status-select {
+  width: 100%;
+  max-width: 140px;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid var(--accent-primary);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.employee-status-select {
+  width: 100%;
+  max-width: 140px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.toggle-button {
+  margin: 1rem 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.toggle-button:hover {
+  border-color: var(--accent-primary);
+}
+
+.all-weeks-container {
+  margin-top: 1rem;
+}
+
+.month-section {
+  margin-bottom: 2rem;
+}
+
+.month-header {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.data-table--employees {
+  table-layout: fixed;
+}
+
+.emp-col-status {
+  width: 10%;
+}
+.emp-col-name {
+  width: 20%;
+}
+.emp-col-date {
+  width: 10%;
+}
+.emp-col-direction {
+  width: 10%;
+}
+.emp-col-week {
+  width: 5%;
+}
+
+.data-table--employees thead th:nth-child(1) {
+  width: 10%;
+  min-width: unset;
+  max-width: unset;
+}
+
+.data-table--employees thead th:nth-child(6),
+.data-table--employees thead th:nth-child(7) {
+  width: 5%;
+  min-width: unset;
+}
+
+.td-inactive-intern {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.kpi-coeff-row > td {
+  background-color: #c41e3a !important;
+  color: var(--text-on-accent, #fff) !important;
+  position: static !important;
+  left: auto !important;
+  box-shadow: none !important;
+}
+
+.kpi-coeff-label {
+  text-align: left;
+  padding: 0.75rem;
+  font-weight: bold;
+}
+
+.kpi-coeff-value {
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+/* Совпадает с шириной блока число + gap + absence-btn в ячейках недель */
+.kpi-coeff-spacer {
+  flex-shrink: 0;
+  width: calc(1rem + 8px);
+  min-height: 1rem;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.table-scroll .data-table tbody tr.kpi-coeff-row:hover > td,
+.table-scroll.table-scroll--plain .data-table tbody tr.kpi-coeff-row:hover > td {
+  background-color: color-mix(in srgb, #c41e3a 88%, #fff) !important;
+}
+
+/* Доска сотрудников: без правил таблицы собеседований (липкие колонки ломали строку коэффициентов) */
+.table-scroll.table-scroll--plain .data-table.employee-board-table tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.table-scroll.table-scroll--plain .data-table.employee-board-table tbody tr:hover > td {
+  background: var(--table-row-hover-bg);
+}
+
+.table-scroll .data-table.employee-board-table.data-table--sticky-leading {
+  --data-table-sticky-col1-width: 5.5rem;
+  --data-table-sticky-col2-left: 14rem;
+}
+
+@media (max-width: 768px) {
+  .data-table.employee-board-table {
+    min-width: 720px;
+    table-layout: auto;
+  }
+
+  .emp-col-week {
+    min-width: 70px;
+    width: auto;
+  }
+
+  .emp-col-name {
+    min-width: 130px;
+  }
+
+  .emp-col-date {
+    min-width: 90px;
+  }
+
+  .emp-col-direction {
+    min-width: 90px;
+  }
+}
+
+.employee-month-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.interview-count-cell {
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.interview-count-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.interview-count-display {
+  min-width: 1.5rem;
+  cursor: default;
+}
+
+.editable-cell .interview-count-display {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.interview-count-input {
+  width: 3rem;
+  padding: 4px 6px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.absence-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.absence-btn:hover {
+  opacity: 1;
+}
+
+.interview-count-cell[data-absence-status]::after {
+  content: attr(data-absence-status-display);
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  padding: 2px 5px;
+  background-color: var(--accent-primary);
+  color: var(--text-on-accent);
+  border-radius: 3px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 10;
+  text-transform: uppercase;
+}
+
+/* Модалка отсутствия */
+.absence-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-out, ease);
+}
+
+.absence-modal-overlay.interviews-modal-fade--open {
+  opacity: 1;
+}
+
+.absence-modal-content {
+  background-color: var(--bg-secondary);
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 16px 32px rgba(1, 4, 9, 0.4);
+  opacity: 0.85;
+  transform: translateY(-12px) scale(0.98);
+  transition:
+    opacity 0.24s var(--ease-out, ease),
+    transform 0.24s var(--ease-out, ease);
+}
+
+.absence-modal-overlay.interviews-modal-fade--open .absence-modal-content {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .absence-modal-overlay,
+  .absence-modal-overlay.interviews-modal-fade--open,
+  .absence-modal-content {
+    transition: none !important;
+  }
+
+  .absence-modal-overlay.interviews-modal-fade--open {
+    opacity: 1;
+  }
+
+  .absence-modal-overlay.interviews-modal-fade--open .absence-modal-content {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.absence-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.absence-modal-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+}
+
+.absence-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.absence-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.absence-modal-body label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.absence-modal-body select,
+.absence-modal-body textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.absence-modal-body textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.absence-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.absence-modal-footer button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.absence-modal-save {
+  background-color: var(--accent-primary);
+  color: var(--text-on-accent);
+  border: none;
+}
+
+.absence-modal-cancel {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.absence-modal-remove {
+  background-color: var(--accent-red, #f85149);
+  color: var(--text-on-accent);
+  border: none;
+  margin-right: auto;
+}
+
+/* ── Админ-отчёты (сжатая копия admin-reports.css) ───── */
+
+.text-accent-blue {
+  color: var(--accent-primary);
+}
+.text-accent-green {
+  color: var(--accent-green);
+}
+.text-muted-inline {
+  color: var(--text-muted);
+}
+
+.page-admin-kpi .admin-report-header,
+.page-admin-developers .admin-report-header {
+  margin-top: 1.5rem;
+}
+
+.page-admin-developers .admin-report-header--after-table {
+  margin-top: 2rem;
+}
+
+.admin-report-alert {
+  margin-top: 1rem;
+}
+
+.admin-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.admin-report-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.admin-title-muted {
+  color: var(--text-muted);
+}
+
+.col-num {
+  width: 40px;
+}
+
+.col-count-md {
+  width: 200px;
+  text-align: center;
+}
+
+.col-count-lg {
+  width: 240px;
+  text-align: center;
+}
+
+.col-toggle {
+  width: 60px;
+  text-align: center;
+}
+
+.col-quarter {
+  width: 25%;
+}
+
+.td-center {
+  text-align: center;
+}
+
+.td-muted {
+  color: var(--text-muted);
+}
+
+.td-secondary-center {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.td-empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+}
+
+/* KPI: карточка фильтров */
+.page-admin-kpi .interviews-subsection {
+  margin-bottom: 0.25rem;
+}
+
+/* Не растягивать группы полей на всю ширину карточки */
+.page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+.page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row input[type='date'] {
+  flex: 0 0 auto;
+  min-width: 10.5rem;
+  width: auto;
+}
+
+.page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-item.admin-kpi-filter-min {
+  flex: 0 0 auto;
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons {
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-item-date .date-row input[type='date'] {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    width: auto;
+  }
+
+  .page-admin-kpi :is(.interviews-filters, .list-page-filters).filter-form .filter-buttons {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+}
+
+.kpi-badge {
+  display: inline-block;
+  background: var(--accent-green);
+  color: var(--text-on-accent);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 6px;
+  padding: 2px 14px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.kpi-row {
+  cursor: pointer;
+}
+
+.kpi-row:hover td {
+  background: rgba(88, 166, 255, 0.06);
+}
+
+.toggle-icon-kpi {
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.kpi-details-row td {
+  border-top: none !important;
+  padding: 0 !important;
+}
+
+.kpi-details-inner {
+  padding: 16px 24px;
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--accent-primary);
+}
+
+.kpi-sub-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.kpi-sub-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--border-color);
+  background: var(--bg-secondary);
+  white-space: nowrap;
+}
+
+.kpi-sub-table thead th.td-center {
+  text-align: center;
+}
+
+.kpi-sub-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.kpi-sub-table tbody td.td-center {
+  text-align: center;
+}
+
+.kpi-sub-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.kpi-sub-table tbody tr:hover td {
+  background: rgba(88, 166, 255, 0.05);
+}
+
+.dev-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-muted-sm {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-muted-sm:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+  background: var(--bg-tertiary);
+}
+
+.btn-hide-manager {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-hide-manager:hover {
+  color: var(--accent-red, #f85149);
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.btn-restore-manager {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+
+.btn-restore-manager:hover {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.dev-row-hidden td {
+  opacity: 0.55;
+}
+
+.dev-hidden-email {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.dev-count-badge {
+  display: inline-block;
+  background: var(--accent-primary);
+  color: var(--text-on-accent);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 6px;
+  padding: 6px 24px;
+  min-width: 52px;
+  text-align: center;
+}
+
+.dev-row:not(.dev-row-empty) {
+  cursor: pointer;
+}
+
+.dev-row:hover td {
+  background: rgba(88, 166, 255, 0.06);
+}
+
+.dev-row-empty {
+  opacity: 0.55;
+}
+
+.toggle-icon-dev {
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.dev-list-row td {
+  border-top: none !important;
+  padding: 0 !important;
+}
+
+.dev-list-inner {
+  padding: 16px 32px;
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--accent-primary);
+}
+
+.dev-intern-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dev-intern-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.9rem;
+}
+
+.dev-intern-group {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.dev-intern-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.dev-intern-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Мобильные карточки КПИ и «Разработчики у менеджеров» ─────────── */
+
+.admin-kpi-mobile-cards,
+.admin-developers-mobile-cards {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .page-admin-kpi .admin-kpi-table-wrap,
+  .page-admin-developers .admin-developers-table-wrap {
+    display: none;
+  }
+
+  .page-admin-kpi .admin-kpi-mobile-cards,
+  .page-admin-developers .admin-developers-mobile-cards {
+    display: flex;
+  }
+}
+
+.admin-mobile-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .admin-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.admin-mobile-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.admin-mobile-card__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.admin-mobile-card__num {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.admin-mobile-card__name {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.admin-mobile-card__badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.admin-mobile-card__label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.admin-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.admin-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.admin-mobile-card__dl dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.admin-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.admin-mobile-card__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-btn);
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.admin-mobile-card__toggle:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--accent-primary);
+}
+
+.admin-mobile-card__details {
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* KPI неделя внутри раскрытой карточки */
+.kpi-week-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+}
+
+.kpi-week-item__period {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.kpi-week-item__dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+
+.kpi-week-item__dl > div {
+  min-width: 0;
+}
+
+.kpi-week-item__dl dt {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.kpi-week-item__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Список разработчиков внутри мобильной карточки админа */
+.admin-mobile-card__intern-list {
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+/* Кнопка hide/restore в мобильной карточке */
+.admin-mobile-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.admin-mobile-card__actions > * {
+  flex: 1 1 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Мобильные карточки стажёров на доске менеджера ─────────────── */
+
+.employee-board-table-wrap {
+  display: block;
+}
+
+.intern-mobile-cards-list {
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .employee-board-table-wrap {
+    display: none;
+  }
+
+  .intern-mobile-cards-list {
+    display: flex;
+  }
+}
+
+.intern-mobile-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  background: var(--bg-secondary);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 380px) {
+  .intern-mobile-card {
+    padding: 16px 18px;
+  }
+}
+
+.intern-mobile-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.intern-mobile-card__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Компактнее статус-бейдж внутри карточки */
+.intern-mobile-card .status-editable {
+  flex-shrink: 0;
+}
+
+.intern-mobile-card .status-label {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+}
+
+.intern-mobile-card__dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.intern-mobile-card__dl > div {
+  min-width: 0;
+}
+
+.intern-mobile-card__dl dt {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.intern-mobile-card__dl dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.intern-mobile-card__weeks-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-btn);
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.intern-mobile-card__weeks-toggle svg {
+  transition: transform 0.35s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+  flex-shrink: 0;
+}
+
+.intern-mobile-card__weeks-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.intern-mobile-card__weeks-toggle:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--accent-primary);
+}
+
+/* Плавное открытие/закрытие блока недель (grid-template-rows trick) */
+.intern-weeks-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.35s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.intern-weeks-collapse.is-collapsed {
+  grid-template-rows: 0fr;
+}
+
+.intern-weeks-collapse__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.intern-mobile-card__weeks {
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+.intern-mobile-card__inactive-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+  font-style: italic;
+}
+
+/* Компактная таблица недель внутри карточки стажёра */
+.intern-mobile-weeks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.intern-mobile-weeks-table th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.intern-mobile-weeks-table th.td-center {
+  text-align: center;
+}
+
+.intern-mobile-weeks-table td {
+  padding: 6px 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+  vertical-align: middle;
+}
+
+.intern-mobile-weeks-table tr:last-child td {
+  border-bottom: none;
+}
+
+.intern-week-period {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* Ячейка коэффициента в таблице недель внутри мобильной карточки */
+.intern-mobile-coeff-th,
+.intern-mobile-coeff-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.intern-mobile-coeff-cell {
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, #c41e3a 70%, var(--text-primary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intern-weeks-collapse {
+    transition: none;
+  }
+
+  .intern-mobile-card__weeks-toggle svg {
+    transition: none;
+  }
+}
