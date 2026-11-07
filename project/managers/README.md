@@ -1,10 +1,10 @@
 # managers
 
-Модель менеджеров (auth/SSO): синхронизация при входе, дашборд команды, REST CRUD для админов. UI — React SPA (`/managers`); бэкенд — REST API. HTML-`views.py` удалён.
+Модель менеджеров: запись создаётся при локальном входе, дашборд команды, REST CRUD для админов. UI — React SPA (`/managers`).
 
 ## Назначение
 
-- Модель `Manager`: email (PK), keycloak_id, ФИО, группы, `is_active`, `hidden_at`.
+- Модель `Manager`: email (PK), ФИО, username, группы, `is_active`, `hidden_at`.
 - Дашборд: KPI, таблица менеджеров, наблюдения, графики (данные через DRF).
 - Профиль текущего пользователя: `GET /api/users/me/`.
 - Celery: удаление скрытых менеджеров старше 90 дней.
@@ -28,7 +28,7 @@ managers/
 
 ## Модели
 
-**Manager:** `email` (PK), `keycloak_id`, `full_name`, `username`, `groups` (JSON), `is_active`, `hidden_at`, timestamps. Свойства: `is_admin`, `is_employment_manager`, `is_cv_manager`, `is_education_manager`. Таблица `managers`.
+**Manager:** `email` (PK), `full_name`, `username`, `groups` (JSON), `is_active`, `hidden_at`, timestamps. Свойства: `is_admin`, `is_employment_manager`, `is_cv_manager`, `is_education_manager`. Таблица `managers`.
 
 ## URL и представления
 
@@ -50,11 +50,11 @@ managers/
 ## Доступ
 
 - DRF: `IsManagerOrAdmin` для аналитики; `IsAdminRole` — CRUD менеджеров.
-- Запись `Manager` создаётся при SSO в `accounts`.
+- Запись `Manager` создаётся при локальном входе в `accounts`.
 
 ## Зависимости
 
-- `accounts` — SSO
+- `accounts` — локальный вход
 - `interviews`, `directions`, `interns`
 - Celery, Redis
 

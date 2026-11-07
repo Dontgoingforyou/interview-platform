@@ -1,13 +1,9 @@
 # Покрытие тестами
 
-Процентный порог для бэкенда не задан. Отчёт показывает непрогнанные строки.
+`make test` гоняет pytest на SQLite. `make coverage` пишет HTML в `htmlcov/index.html`. Миграции в отчёт не входят, порог для бэкенда не задан.
 
-## Бэкенд
+Бэкенд закрыт примерно на 90% строк (3064 теста). Тоньше всего команды `vectorize_data` и `sync_interns_from_file`.
 
-`make coverage` запускает pytest с coverage. Считается каталог `project/`, без миграций, тестов, `asgi.py` и `wsgi.py`. HTML — `htmlcov/index.html`, XML — `coverage.xml`. В консоли видны пропущенные строки.
+Vitest считает `src/utils` и `src/constants`, порог 90% строк: `cd project/frontend && npm run test:coverage`. Страницы в этот процент не входят. Playwright — два смока, `npm run test:e2e`: вход открывает собеседования, раздел сотрудников показывает заголовок.
 
-Тесты идут на SQLite. Векторные сигналы выключены переменной `DISABLE_VECTOR_SIGNALS`.
-
-## Фронтенд
-
-`cd project/frontend && npm run test:coverage` считает Vitest-покрытие `src/utils` и `src/constants`. Порог — 90% строк. Страницы и компоненты этим процентом не покрываются: их проверяют сценарии Playwright, `npm run test:e2e`.
+Сценарии продукта: `docs/product/test-cases.md`.

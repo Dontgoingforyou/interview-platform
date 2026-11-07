@@ -12,7 +12,7 @@
    - В корне фичи — общие виджеты списка (`InterviewFilters.tsx`, `TranscriptionCell.tsx`, …); при росте фильтров — **`filters/`**
 3. **`hooks/interviews/`** — TanStack Query, мутации. **Не** импортируют компоненты из `components/interviews`.
 4. **`api/interviewsApi.ts`**, **`types/interview.ts`** — контракт с бэкендом.
-5. **`utils/interviews/`** — чистые функции для собеседований (`interviewListParams`, `interviewCells`, …). См. **`.cursor/rules/react-frontend.mdc`** → «Утилиты».
+5. **`utils/interviews/`** — чистые функции для собеседований (`interviewListParams`, `interviewCells`).
 
 **Запрещено:** компоненты из `components/interviews` импортируют файлы из `pages/`.
 

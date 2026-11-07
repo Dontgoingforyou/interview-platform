@@ -4,7 +4,7 @@
 
 ## Назначение
 
-- Маршрутизация: только `accounts/` с HTML; остальные разделы — React SPA (`ReactSPAView`) + REST под `/api/`.
+- Маршрутизация: React SPA (`ReactSPAView`) и REST под `/api/`. `GET /accounts/login/` перенаправляет на `/login`.
 - Миксины доступа и логирования для DRF и оставшегося server-side кода (`mixins`, `logging_mixins`).
 - Импорт: `BaseImportService`, Celery `async_import_from_file`, IDOR-защита статуса (`import_tasks`).
 - HR/outstaff: `HROutstaffRedirectMiddleware`, `can_write` в контексте.
@@ -34,8 +34,10 @@ core/
 ├── validators.py
 ├── context_processors.py
 └── management/commands/
-    └── create_main_mock_data.py
+    └── seed_demo_data.py
 ```
+
+`python manage.py seed_demo_data` создаёт учебные направления, компании, студентов, собеседования, офферы, долг с платежами, «Грустят», недельный статус, транскрипцию и статью базы знаний. Повторный запуск не плодит дубли.
 
 ## URL и представления
 
@@ -56,7 +58,7 @@ core/
 
 - Миксины `ManagerRequiredMixin`, `AdminRequiredMixin`, `RoleBasedAccessMixin`, `InternPortalRequiredMixin` — для оставшегося server-side кода.
 - Swagger, ReDoc и `/api/schema/` — только при `DEBUG=True`, затем менеджер или администратор. При `DEBUG=False` — 404.
-- Детали SSO — `accounts/README.md`.
+- Вход — `accounts/README.md`.
 
 ## Зависимости
 

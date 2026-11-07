@@ -11,7 +11,7 @@
    - `admin/` — админ-отчёты (KPI по периоду, количество разработчиков у менеджеров)
 3. **`hooks/employees/`** — переиспользуемые запросы к API доски и списка менеджеров. **Не** импортируют компоненты из `components/employees`.
 4. **`api/employeesApi.ts`**, **`api/managersApi.ts`**, **`api/internsApi.ts`**, **`types/employee.ts`** — контракт с бэкендом.
-5. **`utils/employees/`** — чистые функции для сотрудников (напр. **`employeeBoard.ts`** для доски). См. **`.cursor/rules/react-frontend.mdc`** → «Утилиты».
+5. **`utils/employees/`** — чистые функции для сотрудников, в том числе `employeeBoard.ts` для доски.
 
 **Запрещено:** компоненты из `components/employees` импортируют файлы из `pages/`.
 

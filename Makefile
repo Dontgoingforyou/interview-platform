@@ -4,7 +4,7 @@
 # Использование: make <команда>
 # =============================================================================
 
-.PHONY: help install test lint coverage clean build up up-build down restart logs shell migrate makemigrations collectstatic mock status rebuild logs-web logs-celery check-deps pre-commit typecheck lint-frontend test-frontend env
+.PHONY: help install test lint coverage clean build up up-build down restart logs shell migrate makemigrations collectstatic seed status rebuild logs-web logs-celery check-deps pre-commit typecheck lint-frontend test-frontend env
 
 # Цвета для вывода
 BLUE := \033[0;34m
@@ -61,7 +61,7 @@ help:
 	@echo "    make migrate        - Применить миграции"
 	@echo "    make makemigrations - Создать миграции"
 	@echo "    make collectstatic  - Собрать статику"
-	@echo "    make mock           - Загрузить демо-данные"
+	@echo "    make seed           - Учебные записи в уже запущенный web"
 	@echo ""
 
 # =============================================================================
@@ -183,10 +183,10 @@ collectstatic: .env.local
 	$(COMPOSE) exec web python manage.py collectstatic --noinput
 	@echo "$(GREEN)Статические файлы собраны$(NC)"
 
-mock: .env.local
-	@echo "$(BLUE)Демо-данные...$(NC)"
-	$(COMPOSE) exec web python manage.py create_main_mock_data
-	@echo "$(GREEN)Демо-данные загружены$(NC)"
+seed: .env.local
+	@echo "$(BLUE)Учебные записи...$(NC)"
+	$(COMPOSE) exec web python manage.py seed_demo_data
+	@echo "$(GREEN)Учебные записи готовы$(NC)"
 
 # =============================================================================
 # Дополнительные полезные команды

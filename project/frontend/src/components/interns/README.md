@@ -11,7 +11,7 @@
    - В корне фичи — общие виджеты списка (`InternFilters.tsx`); при росте фильтров — **`filters/`**
 3. **`hooks/interns/`** — TanStack Query, мутации. **Не** импортируют компоненты из `components/interns`.
 4. **`api/internsApi.ts`**, **`types/intern.ts`** — контракт с бэкендом.
-5. **`utils/interns/`** — чистые функции для студентов: **`internListParams.ts`**, **`internTelegram.ts`** (`internTelegramHref` — URL Telegram по username) и др. См. **`.cursor/rules/react-frontend.mdc`** → «Утилиты».
+5. **`utils/interns/`** — чистые функции для студентов: `internListParams.ts`, `internTelegram.ts` (`internTelegramHref` — URL Telegram по username).
 
 **Запрещено:** компоненты из `components/interns` импортируют файлы из `pages/`.
 

@@ -1,6 +1,6 @@
 # interns_portal
 
-Портал студента (React SPA, маршрут `/interns-portal/`): список своих собеседований и асинхронная загрузка записи видео в S3 (FirstVDS). Бэкенд — только REST API; HTML-`views.py` удалён.
+Портал студента (React SPA, маршрут `/interns-portal/`): список своих собеседований и асинхронная загрузка записи видео в S3. Бэкенд — только REST API.
 
 ## Назначение
 
@@ -45,18 +45,18 @@ interns_portal/
 
 - Лимит 10 ГБ; форматы из `constants.py` (`.mp4`, `.mov`, …).
 - Временный файл → `PRIVATE_UPLOAD_ROOT/intern_uploads/` → Celery → S3 (`interview-videos`, плоский ключ `{имя файла}` в корне бакета) → стабильный URL в `Interview.video_link`; просмотр — presigned при отдаче API.
-- **Docker:** каталог `./private_uploads` должен быть смонтирован в контейнеры `web` и `celery_worker` (общий volume), иначе worker не увидит файл после POST.
-- На хосте при деплое: `mkdir -p private_uploads/intern_uploads` (каталог в `.gitignore`).
-- Gunicorn: `--timeout 7200` (согласовано с nginx для больших POST).
-- Параллельные загрузки — sentinel `__uploading__` + очередь Celery.
+- `docker-compose.yml` монтирует `./private_uploads` в `web` и `celery_worker`. Каталог в `.gitignore`.
+- Gunicorn `--timeout 7200`, у nginx те же 7200 секунд на чтение и отправку тела.
+- Celery-воркер: `--pool=prefork --concurrency=2`.
+- Параллельные загрузки — sentinel `__uploading__` и очередь Celery.
 
 ### Поведение при ошибке Celery
 
 При неудаче задачи (`MaxRetriesExceededError` или жёсткий kill) `upload_task_id` остаётся в БД — это намеренно: статусный эндпоинт увидит состояние `FAILURE` по `task_id`, сбросит слот (`upload_task_id = None`) и вернёт ошибку студенту. После следующего рефетча списка студент увидит кнопку «Загрузить» снова.
 
-Поэтому задача **не имеет** `soft_time_limit` / `time_limit` в декораторе — они несовместимы с `--pool=threads` (используется в production): `soft_time_limit` игнорируется, а `time_limit` убивает весь процесс воркера целиком, не давая запустить cleanup.
+У `upload_video_to_s3` нет `soft_time_limit` и `time_limit`: лимит времени убил бы процесс prefork-воркера целиком.
 
-Очистка зависшего `upload_task_id` вручную (если студент завис без доступа к порталу):
+Очистка зависшего `upload_task_id`, если студент не может открыть портал:
 
 ```sql
 UPDATE interviews SET upload_task_id = NULL
@@ -74,15 +74,9 @@ WHERE upload_task_id IS NOT NULL AND upload_task_id != '__uploading__';
 
 Логгер `interns_portal`, файл `logs/interns_portal.log` (RotatingFileHandler).
 
-Загрузка видео помечается префиксом **`[PORTAL_UPLOAD]`** с полем `phase` (`request_start`, `tmp_saved`, `celery_dispatched`, `worker_start`, `worker_done`, `worker_failed_final` и др.). Email в логах не пишется.
+Загрузка видео помечается префиксом `[PORTAL_UPLOAD]` с полем `phase` (`request_start`, `tmp_saved`, `celery_dispatched`, `worker_start`, `worker_done`, `worker_failed_final`). Email в логах не пишется.
 
-**Пример фильтра в Loki/Grafana:**
-
-```
-{job="interview_management"} |= "[PORTAL_UPLOAD]" |= "interview_id=123"
-```
-
-**Операционно:** сброс зависших слотов в БД:
+Сброс зависшего слота:
 
 ```sql
 UPDATE interviews SET upload_task_id = '' WHERE upload_task_id = '__uploading__';

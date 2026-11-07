@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /**
- * E2E: Vite dev + VITE_DEV_BYPASS_AUTH (без Keycloak).
+ * E2E: Vite dev и VITE_DEV_BYPASS_AUTH.
  *
  * Данные в таблицах и метриках приходят с Django (`/api` → proxy на :8000 в vite.config.ts).
  * Без бэкенда возможны InlineError — смоки проверяют навигацию и ключевой UI.
@@ -27,7 +27,7 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
   ],
   webServer: {
-    // В vite.config.ts base='/static/frontend/' для прод-сборки; для смоков нужен корень URL как у SPA в проде (/login).
+    // Сборка портала использует base '/static/frontend/'. Смокам нужен корень, как у страницы /login.
     command:
       'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort --base /',
     cwd: __dirname,

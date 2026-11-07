@@ -8,6 +8,7 @@ Management команда для асинхронной векторизации
 import logging
 from django.core.management.base import BaseCommand, CommandError
 from vector_search.tasks import vectorize_batch_task
+from vector_search.utils import VECTOR_ENTITY_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--entity-type',
             type=str,
-            choices=[
-                'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-                'direction', 'intern_weekly_status'
-            ],
+            choices=list(VECTOR_ENTITY_TYPES),
             help='Векторизовать конкретный тип сущности'
         )
 
@@ -49,10 +47,7 @@ class Command(BaseCommand):
 
         # Определяем, какие типы обрабатывать
         if all_entities:
-            entity_types = [
-                'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-                'direction', 'intern_weekly_status'
-            ]
+            entity_types = list(VECTOR_ENTITY_TYPES)
         else:
             entity_types = [entity_type]
 
@@ -150,5 +145,13 @@ class Command(BaseCommand):
         elif entity_type == 'intern_weekly_status':
             from employees.models import InternWeeklyStatus
             return list(InternWeeklyStatus.objects.all().values_list('pk', flat=True))
+
+        elif entity_type == 'interview_transcription':
+            from transcriptions.models import InterviewTranscription
+            return list(InterviewTranscription.objects.all().values_list('pk', flat=True))
+
+        elif entity_type == 'kb_article':
+            from knowledge_base_app.models import KBArticle
+            return list(KBArticle.objects.all().values_list('pk', flat=True))
 
         return []

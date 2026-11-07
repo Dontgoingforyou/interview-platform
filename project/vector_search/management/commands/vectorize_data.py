@@ -7,7 +7,7 @@ from django.db import transaction
 
 from vector_search.models import VectorEmbedding
 from vector_search.services import EmbeddingService
-from vector_search.utils import extract_text_from_entity, extract_metadata
+from vector_search.utils import VECTOR_ENTITY_TYPES, extract_metadata, extract_text_from_entity
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +25,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--entity-type',
             type=str,
-            choices=[
-                'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-                'direction', 'intern_weekly_status', 'kb_article',
-            ],
+            choices=list(VECTOR_ENTITY_TYPES),
             help='Векторизовать конкретный тип сущности'
         )
 
@@ -56,10 +53,7 @@ class Command(BaseCommand):
 
         # Определяем, какие типы обрабатывать
         if all_entities:
-            entity_types = [
-                'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-                'direction', 'intern_weekly_status', 'kb_article',
-            ]
+            entity_types = list(VECTOR_ENTITY_TYPES)
         else:
             entity_types = [entity_type]
 
@@ -217,5 +211,13 @@ class Command(BaseCommand):
         elif entity_type == 'kb_article':
             from knowledge_base_app.models import KBArticle
             return list(KBArticle.objects.select_related('section').all())
+
+        elif entity_type == 'interview_transcription':
+            from transcriptions.models import InterviewTranscription
+            return list(
+                InterviewTranscription.objects.select_related(
+                    'interview', 'interview__direction', 'interview__intern',
+                ).all()
+            )
 
         return []

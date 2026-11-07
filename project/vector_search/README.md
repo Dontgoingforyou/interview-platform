@@ -7,7 +7,7 @@
 - Семантический поиск по естественному языку.
 - Похожие сущности по `entity_type` + `entity_id`.
 - Статистика векторизованных данных.
-- Типы: interview, intern, offer, debt, sad_intern, manager, company, direction, intern_weekly_status, interview_transcription.
+- Типы: interview, intern, offer, debt, sad_intern, manager, company, direction, intern_weekly_status, interview_transcription, kb_article. Один список `VECTOR_ENTITY_TYPES` в `utils.py` используют команды `vectorize_data`, `vectorize_async` и `check_vector_sync`.
 
 ## Структура
 
@@ -25,8 +25,11 @@ vector_search/
 ├── api_urls.py
 └── management/commands/
     ├── vectorize_data.py
-    └── vectorize_async.py
+    ├── vectorize_async.py
+    └── check_vector_sync.py
 ```
+
+`check_vector_sync` сравнивает строки в БД и эмбеддинги. `--fix` ставит переиндексацию пропущенных.
 
 ## Модели
 
@@ -48,7 +51,7 @@ vector_search/
 
 ## Доступ
 
-- `IsManagerOrAdmin`, Keycloak Bearer / сессия.
+- `IsManagerOrAdmin`, локальная сессия.
 
 ## Зависимости
 
@@ -63,5 +66,8 @@ vector_search/
 - `tests/test_vector_search/test_signals.py` — индексация
 - `tests/test_vector_search/test_serializers.py` — сериализаторы
 - `tests/test_vector_search/test_utils.py` — утилиты
+- `tests/test_vector_search/test_api_views.py` — REST API
+- `tests/test_vector_search/test_check_vector_sync_command.py` — `check_vector_sync`
+- `tests/test_vector_search/test_vectorize_async_command.py` — `vectorize_async`
 
 Запуск: `pytest tests/test_vector_search/ -v`

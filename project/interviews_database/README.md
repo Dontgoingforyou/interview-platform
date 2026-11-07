@@ -32,7 +32,7 @@ interviews_database/
 
 ## Доступ
 
-- DRF: `IsManagerOrAdmin` + Keycloak Bearer / сессия SSO.
+- DRF: `IsManagerOrAdmin`, локальная сессия.
 - HR и outstaff: чтение в рамках разрешённых разделов (см. `core.constants`).
 
 ## Зависимости

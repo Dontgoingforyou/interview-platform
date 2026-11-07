@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from vector_search.models import VectorEmbedding, SearchLog
+from vector_search.utils import VECTOR_ENTITY_TYPES
 
 
 class SemanticSearchRequestSerializer(serializers.Serializer):
@@ -11,10 +12,7 @@ class SemanticSearchRequestSerializer(serializers.Serializer):
     )
 
     entity_type = serializers.ChoiceField(
-        choices=[
-            'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-            'direction', 'intern_weekly_status', 'kb_article',
-        ],
+        choices=list(VECTOR_ENTITY_TYPES),
         required=False,
         allow_null=True,
         help_text='Фильтр по типу сущности'
@@ -64,10 +62,7 @@ class SimilarEntitiesRequestSerializer(serializers.Serializer):
     """Сериализатор запроса для поиска похожих сущностей."""
 
     entity_type = serializers.ChoiceField(
-        choices=[
-            'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-            'direction', 'intern_weekly_status', 'kb_article',
-        ],
+        choices=list(VECTOR_ENTITY_TYPES),
         required=True,
         help_text='Тип сущности'
     )

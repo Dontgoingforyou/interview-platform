@@ -42,11 +42,10 @@ describe('whatsNewPage', () => {
 })
 
 describe('WHATS_NEW_ENTRIES', () => {
-  it('держит патчи без пропуска страницы: сначала 10, потом остальные', () => {
-    expect(WHATS_NEW_ENTRIES).toHaveLength(2)
-    expect(WHATS_NEW_ENTRIES[0]?.version).toBe('1.0.0')
-    expect(WHATS_NEW_ENTRIES[1]?.version).toBe('0.9.0')
-    expect(whatsNewPage(WHATS_NEW_ENTRIES, 0)).toHaveLength(2)
+  it('содержит одну запись 1.0.1', () => {
+    expect(WHATS_NEW_ENTRIES).toHaveLength(1)
+    expect(WHATS_NEW_ENTRIES[0]?.version).toBe('1.0.1')
+    expect(whatsNewPage(WHATS_NEW_ENTRIES, 0)).toHaveLength(1)
     expect(whatsNewPage(WHATS_NEW_ENTRIES, 1)).toHaveLength(0)
   })
 })

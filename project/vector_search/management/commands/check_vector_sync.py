@@ -15,13 +15,11 @@ import logging
 from django.core.management.base import BaseCommand
 
 from vector_search.models import VectorEmbedding
+from vector_search.utils import VECTOR_ENTITY_TYPES
 
 logger = logging.getLogger(__name__)
 
-ENTITY_TYPES = [
-    'interview', 'intern', 'offer', 'debt', 'sad_intern', 'manager', 'company',
-    'direction', 'intern_weekly_status'
-]
+ENTITY_TYPES = list(VECTOR_ENTITY_TYPES)
 
 
 def _get_db_ids(entity_type: str) -> set:
@@ -61,6 +59,14 @@ def _get_db_ids(entity_type: str) -> set:
     elif entity_type == 'intern_weekly_status':
         from employees.models import InternWeeklyStatus
         return {str(pk) for pk in InternWeeklyStatus.objects.values_list('pk', flat=True)}
+
+    elif entity_type == 'interview_transcription':
+        from transcriptions.models import InterviewTranscription
+        return {str(pk) for pk in InterviewTranscription.objects.values_list('pk', flat=True)}
+
+    elif entity_type == 'kb_article':
+        from knowledge_base_app.models import KBArticle
+        return {str(pk) for pk in KBArticle.objects.values_list('pk', flat=True)}
 
     return set()
 

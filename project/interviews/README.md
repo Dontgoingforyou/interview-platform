@@ -5,7 +5,7 @@
 ## Назначение
 
 - Список собеседований с поиском, фильтрами (менеджер, направление, компания, формат, дата), сортировкой, пагинацией (фронтенд `/interviews`).
-- CRUD через API: менеджеры с правом записи создают/редактируют свои записи; удаление — админ. Импорт через Celery (`InterviewImportService`).
+- CRUD через API: администратор и менеджер создают, правят и удаляют записи в своей области видимости. HR и outstaff только читают. Импорт через Celery (`InterviewImportService`).
 - REST API: список, детали, CRUD, транскрипция, аналитика.
 
 ## Структура
@@ -40,13 +40,13 @@ interviews/
 | Метод | URL | Доступ | Описание |
 |-------|-----|--------|----------|
 | GET | `/api/interviews/` | Менеджер/HR/outstaff/Админ | Список с фильтрами |
-| POST | `/api/interviews/` | Запись (менеджер/админ) | Создать |
+| POST | `/api/interviews/` | Администратор и менеджер | Создать |
 | GET | `/api/interviews/{id}/` | Менеджер/HR/outstaff/Админ | Детали |
-| PATCH | `/api/interviews/{id}/` | Админ | Обновить |
-| DELETE | `/api/interviews/{id}/` | Админ | Удалить |
-| POST | `/api/interviews/{id}/transcribe/` | Админ | Запуск транскрипции |
-| GET | `/api/interviews/{id}/transcription-status/` | Менеджер/Админ | Статус транскрипции |
-| GET | `/api/interviews/{id}/transcription-text/` | Менеджер/Админ | Текст транскрипции |
+| PATCH | `/api/interviews/{id}/` | Администратор и менеджер | Обновить свою область видимости |
+| DELETE | `/api/interviews/{id}/` | Администратор и менеджер | Удалить |
+| POST | `/api/interviews/{id}/transcribe/` | Администратор или ментор | Запуск транскрипции |
+| GET | `/api/interviews/{id}/transcription-status/` | Менеджер — свои; админ, HR, outstaff — любые | Статус транскрипции |
+| GET | `/api/interviews/{id}/transcription-text/` | То же | Текст транскрипции |
 | GET | `/api/analytics/interviews/` | Менеджер/Админ | Аналитика |
 | GET | `/api/analytics/interviews/type-breakdown/` | Менеджер/Админ | Разбивка по типам |
 | POST | `/api/interviews/import/` | Админ | Импорт файла (Celery) |
@@ -57,8 +57,9 @@ interviews/
 
 ## Доступ
 
-- API: ViewSet + `interview_list.py` (фильтры/сортировка). Админ — полный доступ; менеджер — только свои по `manager_email`.
-- API: `IsManagerOrAdmin` (GET), `IsAdminRole` (create/update/delete).
+- Чтение: `IsManagerOrAdmin`. Менеджер видит свои записи по `manager_email`. HR и outstaff читают все.
+- Создание, правка и удаление: `IsInterviewWriteRole` (администратор и менеджер).
+- Запуск транскрипции: `IsAdminOrMentorRole`.
 
 ## Импорт
 

@@ -8,7 +8,7 @@
 - Очередь без дублей: cooldown для `pending`, `select_for_update`, `transaction.on_commit`; stale `processing` — heartbeat и таймауты из `constants.py`.
 - Две попытки при `408 SLOW_UPLOAD`: URL Deepgram, затем потоковая загрузка бинарных данных.
 - Автозапуск по сигналу `post_save` на `Interview` при появлении `transcription_media_url`.
-- Ручной запуск и просмотр статуса/текста — через API собеседований (только админ для POST transcribe).
+- Ручной запуск — `POST /api/interviews/{id}/transcribe/` (администратор или ментор). Статус и текст читают менеджер по своим записям, а также админ, HR и outstaff.
 - Circuit breaker при нулевом балансе Deepgram (Redis).
 - Пакетная обработка: `manage.py transcribe_interviews` (`--dry-run`, `--reset-balance-flag`).
 - Баланс Deepgram: `GET /api/transcriptions/deepgram-balance/`.
@@ -41,7 +41,7 @@ transcriptions/
 
 | Метод | URL | Доступ | Описание |
 |-------|-----|--------|----------|
-| POST | `/api/interviews/{id}/transcribe/` | Админ | Запуск/перезапуск транскрипции |
+| POST | `/api/interviews/{id}/transcribe/` | Администратор или ментор | Запуск/перезапуск транскрипции |
 | GET | `/api/interviews/{id}/transcription-status/` | Менеджер (свои) / админ, HR, outstaff | Статус (JSON) |
 | GET | `/api/interviews/{id}/transcription-text/` | То же | Текст транскрипции |
 | GET | `/api/transcriptions/deepgram-balance/` | Админ | Баланс Deepgram |
@@ -50,7 +50,7 @@ transcriptions/
 
 ## Доступ
 
-- `transcribe` — `IsAdminRole`.
+- `transcribe` — `IsAdminOrMentorRole`.
 - Статус и текст — менеджер видит только свои собеседования; админ, HR, outstaff — любые.
 - Аутентификация: сессия локального входа (см. `accounts`).
 
@@ -62,14 +62,14 @@ transcriptions/
 
 ## Конфигурация
 
-Переменные окружения: `DEEPGRAM_API_KEY`, `DEEPGRAM_PROJECT_ID`, `YA_TOKEN` (см. `.env.example` и security.mdc).
+Переменные окружения: `DEEPGRAM_API_KEY`, `DEEPGRAM_PROJECT_ID`, `YA_TOKEN`. Имена — в `.env.example`.
 
 ## Работа в Docker
 
 ```bash
-docker exec interview_management_web python manage.py transcribe_interviews --dry-run
-docker exec interview_management_web python manage.py transcribe_interviews --limit=100
-docker exec interview_management_web python manage.py transcribe_interviews --reset-balance-flag
+docker exec interview_management_web_local python manage.py transcribe_interviews --dry-run
+docker exec interview_management_web_local python manage.py transcribe_interviews --limit=100
+docker exec interview_management_web_local python manage.py transcribe_interviews --reset-balance-flag
 ```
 
 ## Логирование
