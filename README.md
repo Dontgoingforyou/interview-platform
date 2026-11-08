@@ -4,9 +4,7 @@
 
 Студент входит своей учёткой и смотрит свои собеседования. Администратор смотрит всех.
 
-Вход локальный. Демо-учётки: `admin` / `demo-admin`, `manager` / `demo-manager`, `student` / `demo-student`.
-
-Портал на Django, DRF, Celery, PostgreSQL с pgvector, Redis и React. Один `docker-compose.yml`.
+Демо-учётки: `admin` / `demo-admin`, `manager` / `demo-manager`, `student` / `demo-student`.
 
 ## Запуск
 
@@ -17,27 +15,23 @@ docker compose --env-file .env.local up --build
 
 Сайт: http://localhost:82. API напрямую: http://localhost:8001. Документация API: http://localhost:82/api/docs/.
 
-Учебные записи:
+Учебные записи, если контейнер `web` уже запущен:
 
 ```bash
 docker compose --env-file .env.local exec web python manage.py seed_demo_data
 ```
 
-Остальные команды: `make help`.
+Повторный запуск не создаёт дубли. Кроме студентов и собеседований команда кладёт офферы, долг с платежами, записи «Грустят», неделю на доске сотрудников, ссылку для базы собеседований с учебной транскрипцией и статью базы знаний. Студент `student` / `demo-student` видит свои собеседования. Остальные команды: `make help`.
 
-## Чем отличается от рабочей версии
+Виртуальное окружение для тестов и линтера: `python3 -m venv .venv && source .venv/bin/activate && poetry install`, либо `make install`.
 
-Рабочая система ходила во внешний вход и хранила боевые карточки. Здесь этого нет.
+## Стек
 
-- Вход локальный: администратор, менеджер и студент. Отдельного сервера входа нет.
-- В карточке студента нет паролей внешних площадок, сессии бота и внешнего RAG.
-- Нет выгрузки собеседований в таблицу и колонки статуса бота в долгах.
-- Один `docker-compose.yml`. Отдельного стенда и боевого деплоя нет.
-- S3, Deepgram и Яндекс Диск в `.env.example` — пустые заглушки. Без них списки и вход работают.
+Django 5.2, DRF, Celery, PostgreSQL с pgvector, Redis, React 19, Vite. Один `docker-compose.yml` в корне.
+
+Векторный поиск выключен, пока в `.env.local` стоит `DISABLE_VECTOR=true`. Чтобы включить, уберите флаг, задайте `OPENAI_API_KEY` и выполните `python manage.py vectorize_data --all`.
 
 ## Тесты
-
-Виртуальное окружение: `python3 -m venv .venv && source .venv/bin/activate && poetry install`, либо `make install`.
 
 `make test` — pytest на SQLite. `make coverage` — HTML в `htmlcov/index.html`. `make test-frontend` — Vitest.
 
