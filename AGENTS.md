@@ -5,8 +5,8 @@
 | Поле | Значение |
 |---|---|
 | Тип | `web-api` |
-| HTTP API | да, контракт: `docs/api/openapi.yaml` |
-| UI prototype | React SPA; brownfield-прототип фиксируется в `docs/product/prototype/` |
+| HTTP API | да, схема собирается DRF и открывается на `/api/docs/` |
+| UI | React SPA в `project/frontend/` |
 | Запуск | один `docker-compose.yml` в корне |
 | Submodule | нет |
 
@@ -30,15 +30,12 @@ Backend сохраняет плоские имена Django-модулей (`cor
 ## Границы
 
 Секреты, `.env` и ключи в Git не добавлять.
-Видимые изменения UI синхронизировать с требованиями, тест-кейсами и реестром экранов.
 
-## Требования и тестирование
+## Тестирование
 
-- Требования: `docs/product/requirements.md`.
-- Продуктовые сценарии: `docs/product/test-cases.md`.
-- Реестр UI: `docs/product/screens-index.md`.
-- Нормативы тестирования: `docs/testing/requirements.md`.
-- API-контракт: `docs/api/openapi.yaml`.
+- Backend: `pytest` в `tests/`.
+- Frontend: Vitest в `project/frontend/src/tests/`, Playwright в `project/frontend/e2e/`.
+- Новый или изменённый сценарий закрывать автотестом.
 
 ## Git
 
@@ -63,6 +60,6 @@ docker compose --env-file .env.local up --build
 
 ## Для агента
 
-Перед изменением API обновлять OpenAPI в том же изменении. Новый или изменённый функциональный
-сценарий должен иметь тест-кейс и, где возможно, автотест. Не перемещать runtime-каталоги
+Схема API собирается из кода DRF. Новый или изменённый сценарий закрывать автотестом.
+Не перемещать runtime-каталоги
 `staticfiles/`, `media/`, `private_uploads/`, `logs/`, `credentials/` без копии.

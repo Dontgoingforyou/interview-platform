@@ -35,10 +35,10 @@ Django 5.2, DRF, Celery, PostgreSQL с pgvector, Redis, React 19, Vite. Один
 
 `make test` — pytest на SQLite. `make coverage` — HTML в `htmlcov/index.html`. `make test-frontend` — Vitest.
 
-Что именно покрыто: `docs/product/coverage.md`.
+Бэкенд закрыт примерно на 90% строк. Vitest считает `src/utils` и `src/constants`. Playwright — два смока.
 
 ## Документация
 
-Требования и сценарии: `docs/product/`. Контракт API: `docs/api/openapi.yaml`. У каждого Django-приложения свой `README.md`.
+Схема API открывается на `/api/docs/`, когда сайт запущен. У каждого Django-приложения свой `README.md`.
 
 Лицензия: MIT, текст в `LICENSE`.

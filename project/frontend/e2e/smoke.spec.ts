@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 /**
  * Смоки ключевых маршрутов. Вход обходится флагом VITE_DEV_BYPASS_AUTH.
- * Селекторы — по ролям и стабильным заголовкам (см. docs/REACT_MIGRATION EPIC-19).
+ * Селекторы — по ролям и стабильным заголовкам.
  */
 test.describe('SPA smoke', () => {
   test('страница входа с обходом SSO перенаправляет на собеседования', async ({ page }) => {
