@@ -13,29 +13,21 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: flake8
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/python
-      - run: make lint
-
-  typecheck:
-    name: mypy
+  backend-lint:
+    name: линт бэкенда
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/python
+      - run: make lint
       - run: make typecheck
         env:
           DJANGO_TESTING: "1"
           SECRET_KEY: test-secret-key
 
-  test:
-    name: pytest
+  backend-test:
+    name: тесты бэкенда
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -47,10 +39,10 @@ jobs:
           DISABLE_VECTOR_SIGNALS: "1"
           SECRET_KEY: test-secret-key
 
-  frontend:
-    name: фронтенд
+  frontend-lint:
+    name: линт фронтенда
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -61,4 +53,18 @@ jobs:
       - run: npm ci
         working-directory: project/frontend
       - run: make lint-frontend
+
+  frontend-test:
+    name: тесты фронтенда
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: project/frontend/package-lock.json
+      - run: npm ci
+        working-directory: project/frontend
       - run: make test-frontend

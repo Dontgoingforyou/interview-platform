@@ -58,7 +58,7 @@ npm run build
 docker compose --env-file .env.local up --build
 ```
 
-Проверки на GitHub: `.github/workflows/checks.yml` — flake8, mypy, pytest, фронтенд.
+Проверки на GitHub: `.github/workflows/checks.yml` — линт и тесты бэкенда, линт и тесты фронтенда.
 
 ## Для агента
 
