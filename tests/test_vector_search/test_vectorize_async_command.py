@@ -5,6 +5,8 @@ from unittest.mock import patch
 import pytest
 from django.core.management import CommandError, call_command
 
+from vector_search.utils import VECTOR_ENTITY_TYPES
+
 
 @pytest.mark.django_db(databases=['default'])
 class TestVectorizeAsyncCommand:
@@ -26,7 +28,7 @@ class TestVectorizeAsyncCommand:
     def test_all_entity_types(self, mock_schedule):
         out = StringIO()
         call_command('vectorize_async', '--all', stdout=out)
-        assert mock_schedule.call_count == 9
+        assert mock_schedule.call_count == len(VECTOR_ENTITY_TYPES)
         assert 'Всего запланировано' in out.getvalue()
 
     def test_empty_company_no_tasks(self):

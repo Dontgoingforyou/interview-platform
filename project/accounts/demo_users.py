@@ -4,8 +4,18 @@
 Пароли публичные: это локальные демо-учётки.
 """
 import secrets
+from typing import TypedDict
 
-DEMO_USERS = (
+
+class DemoAccount(TypedDict):
+    username: str
+    password: str
+    email: str
+    full_name: str
+    groups: list[str]
+
+
+DEMO_USERS: tuple[DemoAccount, ...] = (
     {
         'username': 'admin',
         'password': 'demo-admin',
@@ -30,7 +40,7 @@ DEMO_USERS = (
 )
 
 
-def authenticate_demo(username: str, password: str) -> dict | None:
+def authenticate_demo(username: str, password: str) -> DemoAccount | None:
     """Возвращает демо-учётку или None."""
     login = (username or '').strip()
     secret = password or ''
