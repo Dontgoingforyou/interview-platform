@@ -1,0 +1,19 @@
+name: Python
+description: Python 3.12 и зависимости Poetry в .venv
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - shell: bash
+      run: pipx install poetry==2.5.1
+    - shell: bash
+      run: poetry config virtualenvs.in-project true
+    - uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-py3.12-${{ hashFiles('poetry.lock') }}
+    - shell: bash
+      run: poetry install --no-interaction --no-ansi

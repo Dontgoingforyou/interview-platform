@@ -35,6 +35,8 @@ Django 5.2, DRF, Celery, PostgreSQL с pgvector, Redis, React 19, Vite. Один
 
 `make test` — pytest на SQLite. `make coverage` — HTML в `htmlcov/index.html`. `make test-frontend` — Vitest.
 
+На GitHub те же проверки идут четырьмя джобами: flake8, mypy, pytest и фронтенд (eslint, tsc, Vitest).
+
 Бэкенд закрыт примерно на 90% строк. Vitest считает `src/utils` и `src/constants`. Playwright — два смока.
 
 ## Документация

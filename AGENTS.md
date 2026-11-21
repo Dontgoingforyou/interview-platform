@@ -58,6 +58,8 @@ npm run build
 docker compose --env-file .env.local up --build
 ```
 
+Проверки на GitHub: `.github/workflows/checks.yml` — flake8, mypy, pytest, фронтенд.
+
 ## Для агента
 
 Схема API собирается из кода DRF. Новый или изменённый сценарий закрывать автотестом.
